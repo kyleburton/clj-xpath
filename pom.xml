@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.github.kyleburton</groupId>
+  <artifactId>clj-xpath</artifactId>
+  <version>1.0</version>
+  <packaging>jar</packaging>
+  <name>Clojure Xpath Utilties</name>
+  <description>Helper utilities for working with XPath from Clojure.</description>
+  <url>http://github.com/kyleburton/sandbox/tree/master</url>
+  <inceptionYear>2009</inceptionYear>
+
+  <developers>
+    <developer>
+      <id>kburton</id>
+      <name>Kyle Burton</name>
+      <email>kyle.burton@gmail.com</email>
+    </developer>
+  </developers>
+
+  <issueManagement>
+    <system>github</system>
+    <url>http://github.com/kyleburton/sandbox/issues</url>
+  </issueManagement>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>cobertura-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>clean</id>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.5</source>
+          <target>1.5</target>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+
+          <execution>
+            <id>compile-clojure-sources</id>
+            <phase>compile</phase>
+            <configuration>
+              <tasks>
+                <echo message="COMPILE" />
+                <mkdir dir="target/classes" />
+                <property name="compile.classpath"
+                          refid="maven.compile.classpath" />
+                <java classname="clojure.lang.Compile"
+                      classpath="${compile.classpath}:src/main/clj" failonerror="true" fork="true">
+                  <sysproperty key="clojure.compile.path"
+                               value="target/classes" />
+                  <arg value="com.github.kyleburton.clj-xpath" />
+                </java>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+
+          <execution>
+            <id>compile-clojure-tests</id>
+            <phase>compile</phase>
+            <configuration>
+              <tasks>
+                <mkdir dir="target/test-classes" />
+                <property name="compile.classpath"
+                          refid="maven.compile.classpath" />
+                <java classname="clojure.lang.Compile"
+                      classpath="${compile.classpath}:${basedir}/src/test/clj:${basedir}/target/test-classes:${basedir}/target/classes" failonerror="true" fork="true">
+                  <sysproperty key="clojure.compile.path"
+                               value="target/test-classes" />
+                  <arg value="com.github.kyleburton.clj-xpath-suite" />
+                  <arg value="com.github.kyleburton.clj-xpath-test" />
+                </java>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+
+          <execution>
+            <id>install-scripts</id>
+            <phase>compile</phase>
+            <configuration>
+              <tasks>
+                <property name="bin.dir" value="${project.build.directory}/../bin" />
+                <property name="maven.runtime.classpath" refid="maven.runtime.classpath"  />
+                <echo message="INSTALL-SCRIPTS" />
+                <filter token="maven.runtime.classpath"
+                        value="${maven.runtime.classpath}:${project.build.directory}/../src/main/clj" />
+                <filter token="bin.dir"
+                        value="${bin.dir}" />
+                <mkdir dir="${bin.dir}" />
+                <copy file="${basedir}/src/main/sh/repl"
+                      todir="${bin.dir}"
+                      filtering="on" />
+                <copy file="${basedir}/src/main/emacs/slime-incl.el"
+                      todir="${bin.dir}"
+                      filtering="on" />
+                <chmod dir="${bin.dir}"
+                       type="file"
+                       perm="0755"
+                       includes="repl"
+                       verbose="true" />
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+
+          <execution>
+            <id>clojure-tests</id>
+            <phase>test</phase>
+            <configuration>
+              <tasks>
+                <echo message="TEST" />
+                <property name="maven.test.classpath" refid="maven.test.classpath"  />
+                <property name="maven.test.classpath"
+                          value="${maven.test.classpath}:${project.build.directory}/src/test/clj"  />
+                <echo message="TEST_CLASSPATH=${maven.test.classpath}" />
+                <java classname="com.github.kyleburton.clj_xpath_suite"
+                      classpathref="maven.test.classpath"
+                      failonerror="true">
+                </java>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.clojure</groupId>
+      <artifactId>clojure</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.clojure</groupId>
+      <artifactId>clojure-contrib</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-math</groupId>
+      <artifactId>commons-math</artifactId>
+      <version>1.2</version>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.14</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>cobertura-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </reporting>
+
+
+</project>
