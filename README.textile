@@ -1,0 +1,17 @@
+h1. clj-xpath
+
+h2. Description
+
+Simplified XPath Library for Clojure.
+
+h2. Usage
+
+<pre><code>
+
+</code></pre>
+
+h2. Authors
+
+* Kyle Burton <kyle.burton@gmail.com>
+* Trotter Cashion <cashion@gmail.com>
+
