@@ -1,0 +1,5 @@
+bin/repl
+bin/slime-incl.el
+clojure
+clojure-contrib
+target

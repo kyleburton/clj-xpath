@@ -1,12 +1,3 @@
-h1. clj-xpath
-
-h2. Description
-
-Simplified XPath Library for Clojure.
-
-h2. Usage
-
-<pre><code>
 (ns example
   (use [com.github.kyleburton.clj-xpath :only [$x $x:tag $x:text $x:attrs $x:attrs* $x:node]]))
 
@@ -52,34 +43,3 @@ h2. Usage
 (prn ($x:text "./author/name"
               ($x:node "//book[contains(@title,'XML')]" *some-xml*)))
 ;; "P.T. Xarnum"
-</code></pre>
-
-h2. Building
-
-clj-xpath is built with maven at this time.  It requires both clojure (1.0) and
-clojure-contrib (1.0) to be installed in an accessible maven repository.  The
-software includes a script to install them into your local (<code>~/.m2</code>) repository
-for you
-
-<pre><code>
-  kyle@indigo64 ~/personal/projects/clj-xpath[master]$ bash bin/maven-bootstrap.sh
-  kyle@indigo64 ~/personal/projects/clj-xpath[master]$ mvn install
-</code></pre>
-
-After running <code>mvn install</code>, <code>clj-xpath-1.0.jar</code> will be
-available for you to utilize in the target directory.  To build a stand-alone
-jar file for clj-xpath which will contain its own code as well as clojure
-and clojure-contrib, run the assembly plugin:
-
-<pre><code>
-  kyle@indigo64 ~/personal/projects/clj-xpath[master]$ mvn assembly:assembly
-</code></pre>
-
-This will create the <code>clj-xpath-1.0-jar-with-dependencies.jar</code> jar
-in the target directory.
-
-h2. Authors
-
-* Kyle Burton <kyle.burton@gmail.com>
-* Trotter Cashion <cashion@gmail.com>
-
