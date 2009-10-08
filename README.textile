@@ -78,6 +78,17 @@ and clojure-contrib, run the assembly plugin:
 This will create the <code>clj-xpath-1.0-jar-with-dependencies.jar</code> jar
 in the target directory.
 
+h3. Maven Coordinates For clj-xpath
+
+<pre><code>
+    <dependency>
+      <groupId>com.github.kyleburton</groupId>
+      <artifactId>clj-xpath</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+</code></pre>
+
+
 h2. Authors
 
 * Kyle Burton <kyle.burton@gmail.com>
