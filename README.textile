@@ -2,9 +2,16 @@ h1. clj-xpath
 
 h2. Description
 
-Simplified XPath Library for Clojure.
+Simplified XPath Library for Clojure.  XML Parsers and an XPath implementation now comes with Java 6, though using the api directly can be verbose and confusing.  This library provides a thin layer around basic parsing and XPath interaction for common use cases.  I have personally found the ability to interactively tweak my xpath expressions to be a great productivity boost - even using this library only for that has helped me in my learning of and using xpath.  I hope you find it useful and would love to hear your feedback and suggestions.
+
 
 h2. Usage
+
+The main functions in the library are <code>$x</code> and those named with a prefix of <code>$x:</code> (eg: <code>$x:text</code>).  The raionale for choosing <code>$x</code> as a name was based on the FireBug xpath function and it being a short and uncommon name.  These xpath functions all take the xpath expression to be executed and an xml document.  They attempt to be flexible with respect to the form of the xml document may represent.  If it is a string it is treated as XML, if a byte array it is used directly, if already a Document or Node (from org.w3c.dom) they are used as-is.
+
+There are two forms of many of the functions, with one set ending with a star '*'.  The non-suffixed forms will perform their operation on a single result node, raising an exception if there isn't exactly one result from applying the xpath expression to the xml document.  The '*' suffixed forms return all of the matched nodes for further processing.
+
+<code>$x</code> function returns a map containing the xml tag (as a symbol), dom Node, the text (as a string), and a map of the attributes where the keys have been converted into symbols and the values remain Strings.
 
 <pre><code>
 (ns example
@@ -54,29 +61,32 @@ h2. Usage
 ;; "P.T. Xarnum"
 </code></pre>
 
+h2. API Reference
+
+h3. <code>(xml->doc doc) => Document</code>
+
+This function takes xml that is of one of the followng types and returns a Document:  String, byte array or org.w3c.dom.Document.
+
+h3. <code>($x xpath-expression doc) => (map [...])</code>
+
+This is the main xpath application function.  It takes an xpath expression (as a string) and a document and returns a sequence of matched elements as maps.  The map contains the node's tag, attributes, text content and the dom Node itself.
+
 h2. Building
 
-clj-xpath is built with maven at this time.  It requires both clojure (1.0) and
-clojure-contrib (1.0) to be installed in an accessible maven repository.  The
-software includes a script to install them into your local (<code>~/.m2</code>) repository
-for you
+clj-xpath is built with maven at this time.  It requires both clojure (1.0) and clojure-contrib (1.0) to be installed in an accessible maven repository.  The software includes a script to install them into your local (<code>~/.m2</code>) repository for you
 
 <pre><code>
   kyle@indigo64 ~/personal/projects/clj-xpath[master]$ bash bin/maven-bootstrap.sh
   kyle@indigo64 ~/personal/projects/clj-xpath[master]$ mvn install
 </code></pre>
 
-After running <code>mvn install</code>, <code>clj-xpath-1.0.jar</code> will be
-available for you to utilize in the target directory.  To build a stand-alone
-jar file for clj-xpath which will contain its own code as well as clojure
-and clojure-contrib, run the assembly plugin:
+After running <code>mvn install</code>, <code>clj-xpath-1.0.jar</code> will be available for you to utilize in the target directory.  To build a stand-alone jar file for clj-xpath which will contain its own code as well as clojure and clojure-contrib, run the assembly plugin:
 
 <pre><code>
   kyle@indigo64 ~/personal/projects/clj-xpath[master]$ mvn assembly:assembly
 </code></pre>
 
-This will create the <code>clj-xpath-1.0-jar-with-dependencies.jar</code> jar
-in the target directory.
+This will create the <code>clj-xpath-1.0-jar-with-dependencies.jar</code> jar in the target directory.
 
 h3. Maven Coordinates For clj-xpath
 
@@ -88,6 +98,49 @@ h3. Maven Coordinates For clj-xpath
     </dependency>
 </code></pre>
 
+h2. Trying It Out
+
+The build creates a REPL script (<code>bin/repl</code>) that you can use to quickly try the library out:
+
+<pre><code>
+kyle@indigo64 ~/personal/projects/clj-xpath[master]$ bin/repl
+Clojure 1.0.0
+user=> (use 'com.github.kyleburton.clj-xpath)
+nil
+user=> (use 'clojure.contrib.duck-streams)
+nil
+user=> (slurp* "http://github.com/kyleburton/clj-xpath/raw/master/pom.xml")
+#'user/xdoc
+user=> ($x:tag "/*" xdoc)
+:project
+user=> ($x:text* "/project/developers/developer/name" xdoc)
+("Kyle Burton")
+user=> (doseq [node ($x "/project/dependencies/dependency" xdoc)]
+  (prn (format "%s %s %s"
+               ($x:text "./groupId"    node)
+               ($x:text "./artifactId" node)
+               ($x:text "./version"    node))))
+"org.clojure clojure 1.0.0"
+"org.clojure clojure-contrib 1.0.0"
+"commons-math commons-math 1.2"
+"log4j log4j 1.2.14"
+"commons-logging commons-logging 1.1.1"
+"junit junit 3.8.1"
+nil
+user=> (System/exit 0)
+kyle@indigo64 ~/personal/projects/clj-xpath[master]$
+</code></pre>
+
+h2. Emacs and Slime
+
+The build creates an emacs-lisp file in the bin directory which you can pull into your running Emacs to add it to the list of lisp implementations for SLIME.
+
+<pre><code>
+(add-to-list 'slime-lisp-implementations
+             '(clj-xpath ("/Users/kburton/personal/projects/sandbox/clj-xpath/target/../bin/repl")
+                        :init swank-clojure-init
+                        :init-function krb-swank-clojure-init) t)
+</code></pre>
 
 h2. Authors
 

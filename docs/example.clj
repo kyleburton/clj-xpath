@@ -43,3 +43,23 @@
 (prn ($x:text "./author/name"
               ($x:node "//book[contains(@title,'XML')]" *some-xml*)))
 ;; "P.T. Xarnum"
+
+
+(comment
+
+;; This is an example REPL session to show more simply how to use it:
+(use 'com.github.kyleburton.clj-xpath)
+(use 'clojure.contrib.duck-streams)
+(def xdox (slurp* "http://github.com/kyleburton/clj-xpath/raw/master/pom.xml"))
+;; or:
+(def xdoc (xml->doc (slurp* "/Users/kburton/personal/projects/clj-xpath/pom.xml")))
+($x:tag "/*" xdoc)
+($x:text* "/project/developers/developer/name" xdoc)
+(doseq [node ($x "/project/dependencies/dependency" xdoc)]
+  (prn (format "%s %s %s"
+               ($x:text "./groupId"    node)
+               ($x:text "./artifactId" node)
+               ($x:text "./version"    node))))
+
+
+  )
