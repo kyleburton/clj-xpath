@@ -17,7 +17,7 @@ user=> (use 'com.github.kyleburton.clj-xpath)
 nil
 user=> (use 'clojure.contrib.duck-streams)
 nil
-user=> (slurp* "http://github.com/kyleburton/clj-xpath/raw/master/pom.xml")
+user=> (def xdoc (slurp* "http://github.com/kyleburton/clj-xpath/raw/master/pom.xml"))
 #'user/xdoc
 user=> ($x:tag "/*" xdoc)
 :project
