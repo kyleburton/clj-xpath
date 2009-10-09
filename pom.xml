@@ -105,8 +105,8 @@
                 <echo message="INSTALL-SCRIPTS" />
                 <filter token="maven.runtime.classpath"
                         value="${maven.runtime.classpath}:${project.build.directory}/../src/main/clj" />
-                <filter token="bin.dir"
-                        value="${bin.dir}" />
+                <filter token="bin.dir" value="${bin.dir}" />
+                <filter token="project.version" value="${project.version}" />
                 <mkdir dir="${bin.dir}" />
                 <copy file="${basedir}/src/main/sh/repl"
                       todir="${bin.dir}"
