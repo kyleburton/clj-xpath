@@ -173,7 +173,7 @@ The build creates an Emacs-lisp file in the bin directory which you can pull int
 
 <pre><code>
 (add-to-list 'slime-lisp-implementations
-             '(clj-xpath ("/Users/kburton/personal/projects/sandbox/clj-xpath/target/../bin/repl")
+             '(clj-xpath ("/Users/kburton/personal/projects/clj-xpath/target/../bin/repl")
                         :init swank-clojure-init
                         :init-function krb-swank-clojure-init) t)
 </code></pre>
