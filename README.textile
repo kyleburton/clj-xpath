@@ -71,6 +71,16 @@ h3. <code>($x xpath-expression doc) => (map [...])</code>
 
 This is the main xpath application function.  It takes an xpath expression (as a string) and a document and returns a sequence of matched elements as maps.  The map contains the node's tag, attributes, text content and the dom Node itself.
 
+h2. Parsing and XPath Compilation
+
+The <code>$x</code> and related functions support Strings, and in many cases, other convienient types for these arguments.  In all cases where it expects an XML Document it can be given a String, a byte array or a Document.  Where an xpath expression is expected it will take either a String or a pre-compiled XPathExpression.  The act of parsing an XML document or compiling an xpath expression is an expensive activity.  With this flexibility, clj-xpath supports the convienience of in-line usage (with String data), as well as pre-parsed and pre-compiled instances for better performance.
+
+<pre><code>
+  (let [expr (xp:compile "/*")
+        doc  (xml->doc "<authors><author><name>P.T. Xarnum</name></author></authors>")]
+    ($x:tag expr doc))
+</code></pre>
+
 h2. Building
 
 clj-xpath is built with maven at this time.  It requires both clojure (1.0) and clojure-contrib (1.0) to be installed in an accessible maven repository.  The software includes a script to install them into your local (<code>~/.m2</code>) repository for you

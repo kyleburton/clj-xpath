@@ -1,6 +1,6 @@
 (ns com.github.kyleburton.clj-xpath-test
   (:use clojure.contrib.test-is
-        [com.github.kyleburton.clj-xpath :as xp :only [$x $x:tag $x:text $x:attrs $x:node tag]]))
+        [com.github.kyleburton.clj-xpath :as xp :only [$x $x:tag $x:text $x:attrs $x:node tag xp:compile xml->doc]]))
 
 (def *xml* {:simple (tag :top-tag "this is a foo")
             :attrs  (tag [:top-tag :name "bobby tables"]
@@ -37,7 +37,27 @@
   (is (= :more-inner
          ($x:tag "./*"
                  ($x:node "/top-tag/*" (:nested *xml*))))))
+
+
+(deftest compile-should-compile-strings
+  (is (isa?
+       (class (xp:compile "//*"))
+       javax.xml.xpath.XPathExpression)))
+
+(deftest compile-should-return-compiled-xpath-expr
+  (is (isa?
+       (class (xp:compile (xp:compile "//*")))
+       javax.xml.xpath.XPathExpression)))
+
+(deftest $x-should-support-precompiled-xpath-expressions
+  (let [expr (xp:compile "/*")
+        doc  (xml->doc (:simple *xml*))]
+    (is (= :top-tag
+           ($x:tag expr doc)))))
+
 (comment
+
+  ($x-should-support-precompiled-xpath-expressions)
 
   (test-$x-on-result)
 

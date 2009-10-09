@@ -10,7 +10,7 @@
    [javax.xml.validation        SchemaFactory]
    [org.w3c.dom                 Document Node]
    [javax.xml.parsers           DocumentBuilderFactory]
-   [javax.xml.xpath             XPathFactory XPathConstants]))
+   [javax.xml.xpath             XPathFactory XPathConstants XPathExpression]))
 
 
 (def *namespace-aware* (atom false))
@@ -70,6 +70,16 @@
    :attrs (attrs node)
    :text  (text node)})
 
+(defmulti xp:compile class)
+
+(def *xpath-factory* (XPathFactory/newInstance))
+(def *xpath-compiler* (.newXPath *xpath-factory*))
+
+(defmethod xp:compile String          [xpexpr] (.compile *xpath-compiler* xpexpr))
+(defmethod xp:compile XPathExpression [xpexpr] xpexpr)
+(defmethod xp:compile :default        [xpexpr]
+  (throwf "xp:compile: don't know how to compile xpath expr of type:%s '%s'" (class xpexpr) xpexpr))
+
 (defmulti $x (fn [xp xml-thing] (class xml-thing)))
 
 (defmethod $x String [xp xml]
@@ -82,12 +92,10 @@
 (defmethod $x java.util.Map                   [xp xml] ($x xp (:node xml)))
 
 ;; assume a Document (or api compatible)
-(defmethod $x :default [xpath-string doc]
-  (let [xpath-fact  (XPathFactory/newInstance)
-        xp          (.newXPath xpath-fact)
-        xpexpr      (.compile xp xpath-string)
-        node-list   (.evaluate xpexpr doc XPathConstants/NODESET)]
-    (map node->map (node-list->seq node-list))))
+(defmethod $x :default [xp-expression doc]
+    (map node->map
+         (node-list->seq
+          (.evaluate (xp:compile xp-expression) doc XPathConstants/NODESET))))
 
 ;; ($x "//*" (tag :foo "body"))
 
