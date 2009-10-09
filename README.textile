@@ -41,11 +41,11 @@ kyle@indigo64 ~/personal/projects/clj-xpath[master]$
 
 h2. Usage
 
-The main functions in the library are <code>$x</code> and those named with a prefix of <code>$x:</code> (eg: <code>$x:text</code>).  The raionale for choosing <code>$x</code> as a name was based on the FireBug xpath function and it being a short and uncommon name.  These xpath functions all take the xpath expression to be executed and an xml document.  They attempt to be flexible with respect to the form of the xml document may represent.  If it is a string it is treated as XML, if a byte array it is used directly, if already a Document or Node (from org.w3c.dom) they are used as-is.
+The main functions in the library are <code>$x</code> and those named with a prefix of <code>$x:</code> (eg: <code>$x:text</code>).  The rationale for choosing <code>$x</code> as a name was based on the FireBug xpath function and it being a short and uncommon name.  These xpath functions all take the xpath expression to be executed and an XML document.  They attempt to be flexible with respect to the form of the XML document may represent.  If it is a string it is treated as XML, if a byte array it is used directly, if already a Document or Node (from org.w3c.dom) they are used as-is.
 
-There are two forms of many of the functions, with one set ending with a star '*'.  The non-suffixed forms will perform their operation on a single result node, raising an exception if there isn't exactly one result from applying the xpath expression to the xml document.  The '*' suffixed forms return all of the matched nodes for further processing.
+There are two forms of many of the functions, with one set ending with a star '*'.  The non-suffixed forms will perform their operation on a single result node, raising an exception if there isn't exactly one result from applying the xpath expression to the XML document.  The '*' suffixed forms return all of the matched nodes for further processing.
 
-<code>$x</code> function returns a map containing the xml tag (as a symbol), dom Node, the text (as a string), and a map of the attributes where the keys have been converted into symbols and the values remain Strings.
+<code>$x</code> function returns a map containing the XML tag (as a symbol), dom Node, the text (as a string), and a map of the attributes where the keys have been converted into symbols and the values remain Strings.
 
 <pre><code>
 (ns example
@@ -61,7 +61,7 @@ There are two forms of many of the functions, with one set ending with a star '*
       <email>pt@x.m.l</email>
     </author>
     <description>
-      Simply the most comprehensive XML Book on the marktet today.
+      Simply the most comprehensive XML Book on the market today.
     </description>
   </book>
   <book title=\"Some Guide To Functional Programming\">
@@ -109,11 +109,11 @@ This is the main xpath application function.  It takes an xpath expression (as a
 </code></pre>
 
 h3. <code>($x:tag*   xpexpr doc) => [:tag-name ...]</code>
-<code>($x:text*  xpexpr doc) => ["the content" ..]</code>
+<code>($x:text* xpexpr doc) => ["the content" ..]</code>
 <code>($x:attrs* xpexpr doc) => [{:the "attrs" ...} ...]</code>
 <code>($x:node*  xpexpr doc) => [org.w3c.dom.Node ...]</code>
 
-These functions apply the xpath expresskon to the given document and return a sequence of the requested property.
+These functions apply the xpath expression to the given document and return a sequence of the requested property.
 
 h3. <code>($x:tag   xpexpr doc) => :tag-name</code>
 <code>($x:text  xpexpr doc) => "the content"</code>
@@ -124,7 +124,7 @@ These functions return the requested property from the single result of executin
 
 h3. <code>(xml->doc doc) => Document</code>
 
-This function takes xml that is of one of the followng types and returns a Document:  String, byte array or org.w3c.dom.Document.  In cases of repeated usage of the document (eg: executing multiple xpath expressions against the same document) this will improve performance.
+This function takes xml that is of one of the following types and returns a Document:  String, byte array or org.w3c.dom.Document.  In cases of repeated usage of the document (eg: executing multiple xpath expressions against the same document) this will improve performance.
 
 h3. <code>($x:compile xpexpr) => javax.xml.xpath.XPathExpression</code>
 
@@ -132,7 +132,7 @@ Pre-compiles the xpath expression.  In cases of repeated execution of the xpath 
 
 h2. Parsing and XPath Compilation
 
-The <code>$x</code> and related functions support Strings, and in many cases, other convienient types for these arguments.  In all cases where it expects an XML Document it can be given a String, a byte array or a Document.  Where an xpath expression is expected it will take either a String or a pre-compiled XPathExpression.  The act of parsing an XML document or compiling an xpath expression is an expensive activity.  With this flexibility, clj-xpath supports the convienience of in-line usage (with String data), as well as pre-parsed and pre-compiled instances for better performance.
+The <code>$x</code> and related functions support Strings, and in many cases, other convenient types for these arguments.  In all cases where it expects an XML Document it can be given a String, a byte array or a Document.  Where an xpath expression is expected it will take either a String or a pre-compiled XPathExpression.  The act of parsing an XML document or compiling an xpath expression is an expensive activity.  With this flexibility, clj-xpath supports the convenience of in-line usage (with String data), as well as pre-parsed and pre-compiled instances for better performance.
 
 <pre><code>
   (let [expr (xp:compile "/*")
@@ -169,7 +169,7 @@ h3. Maven Coordinates For clj-xpath
 
 h2. Emacs and Slime
 
-The build creates an emacs-lisp file in the bin directory which you can pull into your running Emacs to add it to the list of lisp implementations for SLIME.
+The build creates an Emacs-lisp file in the bin directory which you can pull into your running Emacs to add it to the list of lisp implementations for SLIME.
 
 <pre><code>
 (add-to-list 'slime-lisp-implementations
