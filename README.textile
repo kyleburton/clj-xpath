@@ -8,7 +8,7 @@ Simplified XPath Library for Clojure.  XML Parsers and an XPath implementation n
 
 h2. Trying It Out
 
-The build creates a REPL script (<code>bin/repl</code>) that you can use to quickly try the library out:
+The build (see 'Building' for instructions on building this software) creates a REPL script (<code>bin/repl</code>) that you can use to quickly try the library out:
 
 <pre><code>
 kyle@indigo64 ~/personal/projects/clj-xpath[master]$ bin/repl
@@ -155,7 +155,7 @@ After running <code>mvn install</code>, <code>clj-xpath-1.0.jar</code> will be a
   kyle@indigo64 ~/personal/projects/clj-xpath[master]$ mvn assembly:assembly
 </code></pre>
 
-This will create the <code>clj-xpath-1.0-jar-with-dependencies.jar</code> jar in the target directory.
+This will create the <code>clj-xpath-1.0-jar-with-dependencies.jar</code> jar in the target directory, which will contain all of the required dependencies for using the clj-xpath library (it will include clojure and clojure-contrib).
 
 h3. Maven Coordinates For clj-xpath
 

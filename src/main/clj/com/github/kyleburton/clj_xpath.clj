@@ -3,7 +3,7 @@
    [clojure.contrib.str-utils :as str-utils]
    [clojure.contrib.duck-streams :as ds])
   (:import
-   [java.io                     InputStreamReader StringReader File IOException ByteArrayInputStream]
+   [java.io                     InputStream InputStreamReader StringReader File IOException ByteArrayInputStream]
    [org.xml.sax                 InputSource SAXException]
    [javax.xml.transform         Source]
    [javax.xml.transform.stream  StreamSource]
@@ -38,12 +38,16 @@
         builder     (.newDocumentBuilder dom-factory)
         rdr         (ByteArrayInputStream. bytes)]
     (.parse builder rdr)))
+(defn- input-stream->dom [istr]
+  (let [dom-factory (doto (DocumentBuilderFactory/newInstance)
+                      (.setNamespaceAware @*namespace-aware*))
+        builder     (.newDocumentBuilder dom-factory)]
+    (.parse builder istr)))
 
 (defmulti  xml->doc (fn [thing] (class thing)))
 (defmethod xml->doc String               [thing] (xml-bytes->dom (.getBytes thing)))
 (defmethod xml->doc (Class/forName "[B") [thing] (xml-bytes->dom thing))
-;; TODO: implement one for org.w3c.dom.Document which just returns the document...
-;; (defmethod xml->doc )
+(defmethod xml->doc InputStream          [thing] (input-stream->dom thing))
 (defmethod xml->doc org.w3c.dom.Document [thing] thing)
 (defmethod xml->doc :default             [thing]
   (throwf "Error, don't know how to build a doc out of '%s' of class %s" thing (class thing)))
@@ -87,6 +91,9 @@
 
 (defmethod $x (Class/forName "[B") [xp bytes]
   ($x xp (xml->doc bytes)))
+
+(defmethod $x InputStream [xp istr]
+  ($x xp (xml->doc istr)))
 
 ;(defmethod $x clojure.lang.PersistentArrayMap [xp xml] ($x xp (:node xml)))
 (defmethod $x java.util.Map                   [xp xml] ($x xp (:node xml)))

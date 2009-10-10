@@ -55,6 +55,11 @@
     (is (= :top-tag
            ($x:tag expr doc)))))
 
+(deftest should-support-input-stream-as-xml-source
+  (let [istr (java.io.ByteArrayInputStream. (.getBytes (:simple *xml*)))]
+    (is (= :top-tag
+           ($x:tag "/*" istr)))))
+
 (comment
 
   ($x-should-support-precompiled-xpath-expressions)
