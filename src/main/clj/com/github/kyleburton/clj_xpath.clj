@@ -76,7 +76,8 @@
 
 (defmulti xp:compile class)
 
-(def *xpath-factory* (XPathFactory/newInstance))
+;(def *xpath-factory* (XPathFactory/newInstance))
+(def *xpath-factory* (org.apache.xpath.jaxp.XPathFactoryImpl.))
 (def *xpath-compiler* (.newXPath *xpath-factory*))
 
 (defmethod xp:compile String          [xpexpr] (.compile *xpath-compiler* xpexpr))
