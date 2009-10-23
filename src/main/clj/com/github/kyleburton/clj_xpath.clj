@@ -14,6 +14,7 @@
 
 
 (def *namespace-aware* (atom false))
+(def *default-encoding* "UTF-8")
 
 (defn throwf [& args]
   (throw (RuntimeException. (apply format args))))
@@ -45,7 +46,7 @@
     (.parse builder istr)))
 
 (defmulti  xml->doc (fn [thing] (class thing)))
-(defmethod xml->doc String               [thing] (xml-bytes->dom (.getBytes thing)))
+(defmethod xml->doc String               [thing] (xml-bytes->dom (.getBytes thing *default-encoding*)))
 (defmethod xml->doc (Class/forName "[B") [thing] (xml-bytes->dom thing))
 (defmethod xml->doc InputStream          [thing] (input-stream->dom thing))
 (defmethod xml->doc org.w3c.dom.Document [thing] thing)
@@ -88,7 +89,7 @@
 (defmulti $x (fn [xp xml-thing] (class xml-thing)))
 
 (defmethod $x String [xp xml]
-  ($x xp (xml->doc (.getBytes xml))))
+  ($x xp (xml->doc (.getBytes xml *default-encoding*))))
 
 (defmethod $x (Class/forName "[B") [xp bytes]
   ($x xp (xml->doc bytes)))
