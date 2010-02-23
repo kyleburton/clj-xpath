@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.kyleburton</groupId>
   <artifactId>clj-xpath</artifactId>
-  <version>1.0.5-SNAPSHOT</version>
+  <version>1.0.5</version>
   <packaging>jar</packaging>
   <name>Clojure Xpath Utilties</name>
   <description>Helper utilities for working with XPath from Clojure.</description>
@@ -70,12 +69,9 @@
               <tasks>
                 <echo message="COMPILE" />
                 <mkdir dir="target/classes" />
-                <property name="compile.classpath"
-                          refid="maven.compile.classpath" />
-                <java classname="clojure.lang.Compile"
-                      classpath="${compile.classpath}:src/main/clj" failonerror="true" fork="true">
-                  <sysproperty key="clojure.compile.path"
-                               value="target/classes" />
+                <property name="compile.classpath" refid="maven.compile.classpath" />
+                <java classname="clojure.lang.Compile" classpath="${compile.classpath}:src/main/clj" failonerror="true" fork="true">
+                  <sysproperty key="clojure.compile.path" value="target/classes" />
                   <arg value="com.github.kyleburton.clj-xpath" />
                 </java>
               </tasks>
@@ -91,12 +87,9 @@
             <configuration>
               <tasks>
                 <mkdir dir="target/test-classes" />
-                <property name="compile.classpath"
-                          refid="maven.compile.classpath" />
-                <java classname="clojure.lang.Compile"
-                      classpath="${compile.classpath}:${basedir}/src/test/clj:${basedir}/target/test-classes:${basedir}/target/classes" failonerror="true" fork="true">
-                  <sysproperty key="clojure.compile.path"
-                               value="target/test-classes" />
+                <property name="compile.classpath" refid="maven.compile.classpath" />
+                <java classname="clojure.lang.Compile" classpath="${compile.classpath}:${basedir}/src/test/clj:${basedir}/target/test-classes:${basedir}/target/classes" failonerror="true" fork="true">
+                  <sysproperty key="clojure.compile.path" value="target/test-classes" />
                   <arg value="com.github.kyleburton.clj-xpath-suite" />
                   <arg value="com.github.kyleburton.clj-xpath-test" />
                 </java>
@@ -113,27 +106,16 @@
             <configuration>
               <tasks>
                 <property name="bin.dir" value="${project.build.directory}/../bin" />
-                <property name="maven.runtime.classpath" refid="maven.runtime.classpath"  />
+                <property name="maven.runtime.classpath" refid="maven.runtime.classpath" />
                 <echo message="INSTALL-SCRIPTS" />
-                <filter token="maven.runtime.classpath"
-                        value="${maven.runtime.classpath}:${project.build.directory}/../src/main/clj" />
+                <filter token="maven.runtime.classpath" value="${maven.runtime.classpath}:${project.build.directory}/../src/main/clj" />
                 <filter token="bin.dir" value="${bin.dir}" />
                 <filter token="project.version" value="${project.version}" />
                 <mkdir dir="${bin.dir}" />
-                <copy file="${basedir}/src/main/sh/repl"
-                      todir="${bin.dir}"
-                      filtering="on" />
-                <copy file="${basedir}/src/main/sh/jirb"
-                      todir="${bin.dir}"
-                      filtering="on" />
-                <copy file="${basedir}/src/main/emacs/slime-incl.el"
-                      todir="${bin.dir}"
-                      filtering="on" />
-                <chmod dir="${bin.dir}"
-                       type="file"
-                       perm="0755"
-                       includes="repl,*.sh,jirb"
-                       verbose="true" />
+                <copy file="${basedir}/src/main/sh/repl" todir="${bin.dir}" filtering="on" />
+                <copy file="${basedir}/src/main/sh/jirb" todir="${bin.dir}" filtering="on" />
+                <copy file="${basedir}/src/main/emacs/slime-incl.el" todir="${bin.dir}" filtering="on" />
+                <chmod dir="${bin.dir}" type="file" perm="0755" includes="repl,*.sh,jirb" verbose="true" />
               </tasks>
             </configuration>
             <goals>
@@ -147,13 +129,10 @@
             <configuration>
               <tasks>
                 <echo message="TEST" />
-                <property name="maven.test.classpath" refid="maven.test.classpath"  />
-                <property name="maven.test.classpath"
-                          value="${maven.test.classpath}:${project.build.directory}/src/test/clj"  />
+                <property name="maven.test.classpath" refid="maven.test.classpath" />
+                <property name="maven.test.classpath" value="${maven.test.classpath}:${project.build.directory}/src/test/clj" />
                 <echo message="TEST_CLASSPATH=${maven.test.classpath}" />
-                <java classname="com.github.kyleburton.clj_xpath_suite"
-                      classpathref="maven.test.classpath"
-                      failonerror="true">
+                <java classname="com.github.kyleburton.clj_xpath_suite" classpathref="maven.test.classpath" failonerror="true">
                 </java>
               </tasks>
             </configuration>
