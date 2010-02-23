@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.kyleburton</groupId>
   <artifactId>clj-xpath</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
   <packaging>jar</packaging>
   <name>Clojure Xpath Utilties</name>
   <description>Helper utilities for working with XPath from Clojure.</description>
@@ -97,7 +97,7 @@
 
           <execution>
             <id>install-scripts</id>
-            <phase>compile</phase>
+            <phase>generate-sources</phase>
             <configuration>
               <tasks>
                 <property name="bin.dir" value="${project.build.directory}/../bin" />
@@ -111,13 +111,16 @@
                 <copy file="${basedir}/src/main/sh/repl"
                       todir="${bin.dir}"
                       filtering="on" />
+                <copy file="${basedir}/src/main/sh/jirb"
+                      todir="${bin.dir}"
+                      filtering="on" />
                 <copy file="${basedir}/src/main/emacs/slime-incl.el"
                       todir="${bin.dir}"
                       filtering="on" />
                 <chmod dir="${bin.dir}"
                        type="file"
                        perm="0755"
-                       includes="repl"
+                       includes="repl,*.sh,jirb"
                        verbose="true" />
               </tasks>
             </configuration>
@@ -159,6 +162,32 @@
           </descriptorRefs>
         </configuration>
       </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>rspec-maven-plugin</artifactId>
+        <configuration>
+          <jrubyHome>${env.JRUBY_HOME}</jrubyHome>
+          <sourceDirectory>${basedir}/src/test/specs</sourceDirectory>
+          <outputDirectory>${basedir}/target</outputDirectory>
+          <systemProperties>
+            <property>
+              <name>testProp</name><value>testValue</value>
+            </property>
+          </systemProperties>
+        </configuration>
+        <executions>
+          <execution>
+            <id>test</id>
+            <phase>test</phase>
+            <goals>
+              <goal>spec</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+
     </plugins>
   </build>
 

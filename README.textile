@@ -186,6 +186,19 @@ The build creates an Emacs-lisp file in the bin directory which you can pull int
                         :init-function krb-swank-clojure-init) t)
 </code></pre>
 
+h2. Development Roadmap
+
+* Implement 1/more operators via '+'
+* create well named Java accessible static function names for all of the main functions that contain Java-incompatible names (eg, '$', '+', '*' and so on are not valid in Java method names, create meaningful names that can be used from Java code).
+* provide type hints / decorations on functions to help the compiler and to help document expected argument types.
+
+h2. Releases
+
+* 1.0.3 - implemented 0/1 operators, matches
+* 1.0.2 - UTF-8 as default encoding (implemented by Paul Santa Clara)
+* 1.0.1 - support for more variety of document formats, including pre-compilation of the document (performance optimization by supporting a cached parsed document), usage guide
+* 1.0.0 - initial functional library and release
+
 h2. Authors
 
 * Kyle Burton <kyle.burton@gmail.com>

@@ -3,3 +3,4 @@ bin/slime-incl.el
 clojure
 clojure-contrib
 target
+bin/jirb

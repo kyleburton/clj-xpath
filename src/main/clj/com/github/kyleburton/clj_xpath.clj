@@ -10,8 +10,8 @@
    [javax.xml.validation        SchemaFactory]
    [org.w3c.dom                 Document Node]
    [javax.xml.parsers           DocumentBuilderFactory]
-   [javax.xml.xpath             XPathFactory XPathConstants XPathExpression]))
-
+   [javax.xml.xpath             XPathFactory XPathConstants XPathExpression])
+  (:gen-class))
 
 (def *namespace-aware* (atom false))
 (def *default-encoding* "UTF-8")
