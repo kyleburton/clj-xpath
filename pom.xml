@@ -11,9 +11,9 @@
   <inceptionYear>2009</inceptionYear>
 
   <scm>
-    <connection>scm:git:git@github.com:kyleburton/clj-xpath.git</connection>
-    <url>scm:git:git@github.com:kyleburton/clj-xpath.git</url>
-    <developerConnection>scm:git:git@github.com:kyleburton/clj-xpath.git</developerConnection>  
+    <connection>git://github.com/kyleburton/clj-xpath.git</connection>
+    <url>http://github.com/kyleburton/clj-xpath/</url>
+    <developerConnection>git@github.com:kyleburton/clj-xpath.git</developerConnection>  
   </scm>
 
   <developers>

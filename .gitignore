@@ -4,3 +4,5 @@ clojure
 clojure-contrib
 target
 bin/jirb
+pom.xml.releaseBackup
+release.properties
