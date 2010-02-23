@@ -122,6 +122,12 @@ h3. <code>($x:tag?   xpexpr doc) => [:tag-name ...]</code>
 
 These functions apply the xpath expression to the given document and return either nil or the single result found.  Unlinke the singleton forms, these do not throw and exception (just returning nil).
 
+h3. <code>($x:tag+   xpexpr doc) => [:tag-name ...]</code>
+<code>($x:text+ xpexpr doc) => ["the content" ..]</code>
+<code>($x:attrs+ xpexpr doc) => [{:the "attrs" ...} ...]</code>
+<code>($x:node+  xpexpr doc) => [org.w3c.dom.Node ...]</code>
+
+These functions apply the xpath expression to the given document and return multiple results - throwing an exception if the xpath expression matches no elements.
 
 h3. <code>($x:tag   xpexpr doc) => :tag-name</code>
 <code>($x:text  xpexpr doc) => "the content"</code>
