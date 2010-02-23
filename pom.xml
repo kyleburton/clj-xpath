@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.kyleburton</groupId>
   <artifactId>clj-xpath</artifactId>
-  <version>1.0.5</version>
+  <version>1.0.6-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>Clojure Xpath Utilties</name>
   <description>Helper utilities for working with XPath from Clojure.</description>
