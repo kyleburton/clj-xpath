@@ -163,6 +163,7 @@
         </configuration>
       </plugin>
 
+<!--
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>rspec-maven-plugin</artifactId>
@@ -186,7 +187,7 @@
           </execution>
         </executions>
       </plugin>
-
+-->
 
     </plugins>
   </build>

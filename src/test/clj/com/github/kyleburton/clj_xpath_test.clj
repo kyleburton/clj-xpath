@@ -1,6 +1,6 @@
 (ns com.github.kyleburton.clj-xpath-test
   (:use clojure.contrib.test-is
-        [com.github.kyleburton.clj-xpath :as xp :only [$x $x:tag $x:text $x:attrs $x:node $x:tag? $x:text? tag xp:compile xml->doc]]))
+        [com.github.kyleburton.clj-xpath :as xp :only [$x $x:tag $x:text $x:attrs $x:node $x:tag? $x:text? $x:tag+ $x:text+ tag xp:compile xml->doc]]))
 
 (def *xml* {:simple (tag :top-tag "this is a foo")
             :attrs  (tag [:top-tag :name "bobby tables"]
@@ -65,6 +65,12 @@
   (is (= :top-tag ($x:tag? "/*"   (:simple *xml*))))
   (is (not               ($x:text? "/foo" (:simple *xml*))))
   (is (= "this is a foo" ($x:text? "/*"   (:simple *xml*)))))
+
+(deftest test-zero-or-more-results
+  (is (thrown? Exception        ($x:tag+ "/foo" (:simple *xml*))))
+  (is (= :top-tag        (first ($x:tag+ "/*"   (:simple *xml*)))))
+  (is (thrown? Exception        ($x:text+ "/foo" (:simple *xml*))))
+  (is (= "this is a foo" (first ($x:text+ "/*"   (:simple *xml*))))))
 
 (comment
 
