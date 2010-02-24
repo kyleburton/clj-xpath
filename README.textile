@@ -15,8 +15,6 @@ kyle@indigo64 ~/personal/projects/clj-xpath[master]$ bin/repl
 Clojure 1.0.0
 user=> (use 'com.github.kyleburton.clj-xpath)
 nil
-user=> (use 'clojure.contrib.duck-streams)
-nil
 user=> (def xdoc (slurp* "http://github.com/kyleburton/clj-xpath/raw/master/pom.xml"))
 #'user/xdoc
 user=> ($x:tag "/*" xdoc)
@@ -153,6 +151,26 @@ The <code>$x</code> and related functions support Strings, and in many cases, ot
         doc  (xml->doc "<authors><author><name>P.T. Xarnum</name></author></authors>")]
     ($x:tag expr doc))
 </code></pre>
+
+h2. Cookbook
+
+This section is under development, if you have a particular situation you'd like have added as an example, please write to me at "kyle.burton@gmail.com":mailto:kyle.burton@gmail.com
+
+h3. Get all the Child Nodes of a given Element
+
+h3. Find a node with a specific attribute value
+
+...show xpath queries using attribute matchers eg: "//*[@foo='bar']"
+
+h3. Finding a node that contains specific text
+
+...show xpath query using content matcher: "//*[contains(content(@foo),"some text")]"
+
+h3. Find nodes with one of several tag names
+
+...show example of using 'or'
+
+LINK TO AN XPATH DOCUMENTATION SITE
 
 h2. Building
 
