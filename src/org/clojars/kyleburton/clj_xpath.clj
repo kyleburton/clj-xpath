@@ -1,4 +1,4 @@
-(ns com.github.kyleburton.clj-xpath
+(ns org.clojars.kyleburton.clj-xpath
   (:require
    [clojure.contrib.str-utils :as str-utils]
    [clojure.contrib.duck-streams :as ds])

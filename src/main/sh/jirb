@@ -1,2 +1,0 @@
-export CLASSPATH="target/test-classes:target/classes:@test.classpath@"
-jirb "$@"

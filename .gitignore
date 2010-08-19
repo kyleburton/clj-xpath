@@ -1,8 +1,2 @@
-bin/repl
-bin/slime-incl.el
-clojure
-clojure-contrib
-target
-bin/jirb
-pom.xml.releaseBackup
-release.properties
+lib/
+clj-xpath-*.jar

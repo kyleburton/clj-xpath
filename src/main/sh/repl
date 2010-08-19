@@ -1,9 +1,0 @@
-CLASSPATH="@maven.runtime.classpath@:$HOME/personal/projects/krbemacs/swank-clojure"
-
-#  -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8900 \
-java -server \
-  -Xdebug \
-  -cp "$CLASSPATH" \
-  clojure.lang.Repl \
-  "$@"
-
