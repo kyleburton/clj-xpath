@@ -18,12 +18,22 @@
   <scm>
     <connection>scm:git:git://github.com/kyleburton/clj-xpath.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/kyleburton/clj-xpath.git</developerConnection>
-    <tag>64e164b28d83a16ccaf465f750655e9205dd97b0</tag>
+    <tag>2ea4c84db2b8221cada5dd9087c1a25186a23529</tag>
     <url>http://github.com/kyleburton/clj-xpath</url>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <testSourceDirectory>test</testSourceDirectory>
+    <resources>
+      <resource>
+        <directory>resources</directory>
+      </resource>
+    </resources>
+    <testResources>
+      <testResource>
+        <directory>test-resources</directory>
+      </testResource>
+    </testResources>
   </build>
   <repositories>
     <repository>

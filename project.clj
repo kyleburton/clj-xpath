@@ -1,6 +1,6 @@
 (defproject
     org.clojars.kyleburton/clj-xpath
-    "1.0.8"
+    "1.0.9"
   :description "Simplified XPath from Clojure."
   :url         "http://github.com/kyleburton/clj-xpath"
   :license {:name "Eclipse Public License - v 1.0"
@@ -10,7 +10,7 @@
   :warn-on-reflection true
   :jvm-opts ["-Xmx512M"]
   :dev-dependencies [[swank-clojure "1.2.1"]]
-  :dependencies [[org.clojure/clojure "1.1.0"]
-                 [org.clojure/clojure-contrib "1.1.0"]
+  :dependencies [[org.clojure/clojure "1.2.0"]
+                 [org.clojure/clojure-contrib "1.2.0"]
                  [log4j/log4j "1.2.14"]
                  [xalan "2.7.1"]])
