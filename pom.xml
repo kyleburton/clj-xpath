@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.clojars.kyleburton</groupId>
   <artifactId>clj-xpath</artifactId>
-  <version>1.0.8</version>
+  <version>1.0.9</version>
   <name>clj-xpath</name>
   <description>Simplified XPath from Clojure.</description>
   <url>http://github.com/kyleburton/clj-xpath</url>
@@ -47,12 +47,12 @@
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>clojure</artifactId>
-      <version>1.1.0</version>
+      <version>1.2.0</version>
     </dependency>
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>clojure-contrib</artifactId>
-      <version>1.1.0</version>
+      <version>1.2.0</version>
     </dependency>
     <dependency>
       <groupId>log4j</groupId>
