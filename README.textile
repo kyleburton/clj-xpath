@@ -154,6 +154,18 @@ The <code>$x</code> and related functions support Strings, and in many cases, ot
     ($x:tag expr doc))
 </code></pre>
 
+h2. Validation
+
+Validation now off by default.  Validation is controlled by optional parameters passed to @xml-bytes->dom@, or by overriding the atom @*validation*@ to false:
+
+<pre><code>
+  (ns your.namespace
+    (:use org.clojars.kyleburton.clj-xpath))
+
+  (binding [*validation* false]
+    ($x:text "/this" "<this>foo</this>"))
+</code></pre>
+
 h2. Building
 
 clj-xpath is built with maven at this time.  It requires both clojure (1.0) and clojure-contrib (1.0) to be installed in an accessible maven repository.  The software includes a script to install them into your local (<code>~/.m2</code>) repository for you

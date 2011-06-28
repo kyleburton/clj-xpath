@@ -2,6 +2,8 @@
   (:require
    [clojure.contrib.str-utils :as str-utils]
    [clojure.contrib.duck-streams :as ds])
+  (:use
+   [clj-etl-utils.lang-utils :only [raise aprog1]])
   (:import
    [java.io                     InputStream InputStreamReader StringReader File IOException ByteArrayInputStream]
    [org.xml.sax                 InputSource SAXException]
@@ -33,25 +35,48 @@
              (inc idx)
              (cons (.item node-list idx) res)))))
 
-(defn- xml-bytes->dom [bytes]
-  (let [dom-factory (doto (DocumentBuilderFactory/newInstance)
-                      (.setNamespaceAware @*namespace-aware*))
-        builder     (.newDocumentBuilder dom-factory)
+(def *validation* false)
+
+(defn- xml-bytes->dom [bytes & [opts]]
+  (let [opts (or opts {})
+        dom-factory (aprog1
+                        (DocumentBuilderFactory/newInstance)
+                      (.setNamespaceAware it @*namespace-aware*)
+                      (.setValidating it (opts :validation *validation*)))
+        builder     (aprog1
+                        (.newDocumentBuilder dom-factory)
+                      (if (contains? opts :error-handler)
+                        (.setErrorHandler it (:error-handler opts))))
         rdr         (ByteArrayInputStream. bytes)]
     (.parse builder rdr)))
-(defn- input-stream->dom [istr]
+
+(defn- input-stream->dom [istr & [opts]]
   (let [dom-factory (doto (DocumentBuilderFactory/newInstance)
                       (.setNamespaceAware @*namespace-aware*))
         builder     (.newDocumentBuilder dom-factory)]
     (.parse builder istr)))
 
-(defmulti  xml->doc (fn [thing] (class thing)))
-(defmethod xml->doc String               [thing] (xml-bytes->dom (.getBytes thing *default-encoding*)))
-(defmethod xml->doc (Class/forName "[B") [thing] (xml-bytes->dom thing))
-(defmethod xml->doc InputStream          [thing] (input-stream->dom thing))
-(defmethod xml->doc org.w3c.dom.Document [thing] thing)
-(defmethod xml->doc :default             [thing]
+(defmulti  xml->doc (fn [thing & [opts]] (class thing)))
+(defmethod xml->doc String               [thing & [opts]] (xml-bytes->dom (.getBytes thing *default-encoding*)))
+(defmethod xml->doc (Class/forName "[B") [thing & [opts]] (xml-bytes->dom thing))
+(defmethod xml->doc InputStream          [thing & [opts]] (input-stream->dom thing))
+(defmethod xml->doc org.w3c.dom.Document [thing & [opts]] thing)
+(defmethod xml->doc :default             [thing & [opts]]
   (throwf "Error, don't know how to build a doc out of '%s' of class %s" thing (class thing)))
+
+(comment
+
+  ($x:text "/this" (xml-bytes->dom (.getBytes "<this>foo</this>") {:validation true}))
+
+  ($x:text "/this" (xml-bytes->dom (.getBytes "<this>foo</this>") {:validation false}))
+
+  (binding [*validation* false]
+    ($x:text "/this" "<this>foo</this>"))
+
+  ($x:text "/this"
+   (xml->doc "<this>foo</this>" {:validating false}))
+
+)
 
 (defn attrs [nodeattrs]
   ;(logf "attrs: nodeattrs=%s attrs=%s" nodeattrs (.getAttributes nodeattrs))
