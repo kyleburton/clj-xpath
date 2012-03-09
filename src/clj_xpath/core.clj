@@ -12,8 +12,8 @@
            [javax.xml.xpath XPathFactory XPathConstants XPathExpression])
   (:gen-class))
 
-(def *namespace-aware* (atom false))
-(def *default-encoding* "UTF-8")
+(def ^:dynamic *namespace-aware* (atom false))
+(def ^:dynamic *default-encoding* "UTF-8")
 
 (defn throwf [& args]
   (throw (RuntimeException. (apply format args))))
@@ -28,7 +28,7 @@
              (inc idx)
              (cons (.item node-list idx) res)))))
 
-(def *validation* false)
+(def ^:dynamic *validation* false)
 
 (defn- xml-bytes->dom [bytes & [opts]]
   (let [opts (or opts {})
@@ -91,8 +91,8 @@
 (defmulti xp:compile class)
 
 ;; (def *xpath-factory* (XPathFactory/newInstance))
-(def *xpath-factory* (org.apache.xpath.jaxp.XPathFactoryImpl.))
-(def *xpath-compiler* (.newXPath *xpath-factory*))
+(def ^:dynamic *xpath-factory* (org.apache.xpath.jaxp.XPathFactoryImpl.))
+(def ^:dynamic *xpath-compiler* (.newXPath *xpath-factory*))
 
 (defmethod xp:compile String          [xpexpr] (.compile *xpath-compiler* xpexpr))
 (defmethod xp:compile XPathExpression [xpexpr] xpexpr)
@@ -334,7 +334,7 @@
     (let [[{tag :tag body :text} node :node] ($x "/*")]
       (do-some-stuff)))
 
-  (def *doc* nil)
+  (def ^:dynamic *doc* nil)
 
   (defmacro with-xpath [the-doc & body]
     `(bindings [*doc* (xml->doc ~the-doc)]
