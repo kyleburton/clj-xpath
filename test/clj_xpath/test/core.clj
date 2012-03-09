@@ -1,5 +1,7 @@
 (ns clj-xpath.test.core
-  (:use [clj-xpath.core :as xp :only [$x $x:tag $x:text $x:attrs $x:node $x:tag? $x:text? $x:tag+ $x:text+ xp:compile tag xml->doc]]))
+  (:use [clojure.test]
+        [clj-xpath.core :as xp
+                        :only [$x $x:tag $x:text $x:attrs $x:node $x:tag? $x:text? $x:tag+ $x:text+ xp:compile tag xml->doc]]))
 
 (def *xml* {:simple (tag :top-tag "this is a foo")
             :attrs  (tag [:top-tag :name "bobby tables"]
