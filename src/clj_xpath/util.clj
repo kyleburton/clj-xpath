@@ -1,4 +1,4 @@
-(ns clj-path.util)
+(ns clj-xpath.util)
 
 ;; http://common-lisp.net/project/docudown/documentation/anaphora-package/macro-aprog1.html
 (defmacro aprog1 [res & body]
