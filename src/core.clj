@@ -1,18 +1,15 @@
-(ns org.clojars.kyleburton.clj-xpath
-  (:require
-   [clojure.contrib.str-utils :as str-utils]
-   [clojure.contrib.duck-streams :as ds])
-  (:use
-   [clj-etl-utils.lang-utils :only [raise aprog1]])
-  (:import
-   [java.io                     InputStream InputStreamReader StringReader File IOException ByteArrayInputStream]
-   [org.xml.sax                 InputSource SAXException]
-   [javax.xml.transform         Source]
-   [javax.xml.transform.stream  StreamSource]
-   [javax.xml.validation        SchemaFactory]
-   [org.w3c.dom                 Document Node]
-   [javax.xml.parsers           DocumentBuilderFactory]
-   [javax.xml.xpath             XPathFactory XPathConstants XPathExpression])
+(ns clj-xpath.core
+  (:require [clojure.string :as s]
+            [clojure.java.io :as io]
+            [clj-xpath.util :as u])
+  (:import [java.io InputStream InputStreamReader StringReader File IOException ByteArrayInputStream]
+           [org.xml.sax InputSource SAXException]
+           [javax.xml.transform Source]
+           [javax.xml.transform.stream StreamSource]
+           [javax.xml.validation SchemaFactory]
+           [org.w3c.dom Document Node]
+           [javax.xml.parsers DocumentBuilderFactory]
+           [javax.xml.xpath XPathFactory XPathConstants XPathExpression])
   (:gen-class))
 
 (def *namespace-aware* (atom false))
@@ -21,14 +18,10 @@
 (defn throwf [& args]
   (throw (RuntimeException. (apply format args))))
 
-(defn logf [fmt & args]
-  (.println System/err (apply format fmt args)))
-
 (defn node-list->seq [node-list]
   (loop [length (.getLength node-list)
          idx    0
          res    []]
-    ;(logf "node-list: idx:%s node-list=%s length=%s" idx node-list length)
     (if (>= idx length)
       (reverse res)
       (recur length
@@ -39,47 +32,42 @@
 
 (defn- xml-bytes->dom [bytes & [opts]]
   (let [opts (or opts {})
-        dom-factory (aprog1
-                        (DocumentBuilderFactory/newInstance)
-                      (.setNamespaceAware it @*namespace-aware*)
-                      (.setValidating it (opts :validation *validation*)))
-        builder     (aprog1
-                        (.newDocumentBuilder dom-factory)
-                      (if (contains? opts :error-handler)
-                        (.setErrorHandler it (:error-handler opts))))
-        rdr         (ByteArrayInputStream. bytes)]
+        dom-factory (u/aprog1
+                     (DocumentBuilderFactory/newInstance)
+                     (.setNamespaceAware it @*namespace-aware*)
+                     (.setValidating it (opts :validation *validation*)))
+        builder (u/aprog1
+                 (.newDocumentBuilder dom-factory)
+                 (if (contains? opts :error-handler)
+                   (.setErrorHandler it (:error-handler opts))))
+        rdr (ByteArrayInputStream. bytes)]
     (.parse builder rdr)))
 
 (defn- input-stream->dom [istr & [opts]]
   (let [dom-factory (doto (DocumentBuilderFactory/newInstance)
                       (.setNamespaceAware @*namespace-aware*))
-        builder     (.newDocumentBuilder dom-factory)]
+        builder (.newDocumentBuilder dom-factory)]
     (.parse builder istr)))
 
-(defmulti  xml->doc (fn [thing & [opts]] (class thing)))
-(defmethod xml->doc String               [thing & [opts]] (xml-bytes->dom (.getBytes thing *default-encoding*)))
-(defmethod xml->doc (Class/forName "[B") [thing & [opts]] (xml-bytes->dom thing))
-(defmethod xml->doc InputStream          [thing & [opts]] (input-stream->dom thing))
-(defmethod xml->doc org.w3c.dom.Document [thing & [opts]] thing)
-(defmethod xml->doc :default             [thing & [opts]]
+(defmulti  xml->doc
+  (fn [thing & [opts]] (class thing)))
+
+(defmethod xml->doc String [thing & [opts]]
+  (xml-bytes->dom (.getBytes thing *default-encoding*)))
+
+(defmethod xml->doc (Class/forName "[B") [thing & [opts]]
+  (xml-bytes->dom thing))
+
+(defmethod xml->doc InputStream [thing & [opts]]
+  (input-stream->dom thing))
+
+(defmethod xml->doc org.w3c.dom.Document [thing & [opts]]
+  thing)
+
+(defmethod xml->doc :default [thing & [opts]]
   (throwf "Error, don't know how to build a doc out of '%s' of class %s" thing (class thing)))
 
-(comment
-
-  ($x:text "/this" (xml-bytes->dom (.getBytes "<this>foo</this>") {:validation true}))
-
-  ($x:text "/this" (xml-bytes->dom (.getBytes "<this>foo</this>") {:validation false}))
-
-  (binding [*validation* false]
-    ($x:text "/this" "<this>foo</this>"))
-
-  ($x:text "/this"
-   (xml->doc "<this>foo</this>" {:validating false}))
-
-)
-
 (defn attrs [nodeattrs]
-  ;(logf "attrs: nodeattrs=%s attrs=%s" nodeattrs (.getAttributes nodeattrs))
   (if-let [the-attrs (.getAttributes nodeattrs)]
     (loop [[node & nodes] (node-list->seq (.getAttributes nodeattrs))
            res {}]
@@ -102,7 +90,7 @@
 
 (defmulti xp:compile class)
 
-;(def *xpath-factory* (XPathFactory/newInstance))
+;; (def *xpath-factory* (XPathFactory/newInstance))
 (def *xpath-factory* (org.apache.xpath.jaxp.XPathFactoryImpl.))
 (def *xpath-compiler* (.newXPath *xpath-factory*))
 
@@ -122,14 +110,14 @@
 (defmethod $x InputStream [xp istr]
   ($x xp (xml->doc istr)))
 
-;(defmethod $x clojure.lang.PersistentArrayMap [xp xml] ($x xp (:node xml)))
+;; (defmethod $x clojure.lang.PersistentArrayMap [xp xml] ($x xp (:node xml)))
 (defmethod $x java.util.Map                   [xp xml] ($x xp (:node xml)))
 
-;; assume a Document (or api compatible)
+;; Assume a Document (or API compatible)
 (defmethod $x :default [xp-expression doc]
-    (map node->map
-         (node-list->seq
-          (.evaluate (xp:compile xp-expression) doc XPathConstants/NODESET))))
+  (map node->map
+       (node-list->seq
+        (.evaluate (xp:compile xp-expression) doc XPathConstants/NODESET))))
 
 ;; ($x "//*" (tag :foo "body"))
 
@@ -164,9 +152,9 @@
   (let [res ($x:tag* xp xml)]
     (if (not (= 1 (count res)))
       (throwf "Error, more (or less) than 1 result (%d) from xml(%s) for xpath(%s)"
-                    (count res)
-                    (summarize xml 10)
-                    xp))
+              (count res)
+              (summarize xml 10)
+              xp))
     (first res)))
 
 (defn $x:text* [xp xml]
@@ -194,9 +182,9 @@
   (let [res ($x:text* xp xml)]
     (if (not (= 1 (count res)))
       (throwf "Error, more (or less) than 1 result (%d) from xml(%s) for xpath(%s)"
-                    (count res)
-                    (summarize xml 10)
-                    xp))
+              (count res)
+              (summarize xml 10)
+              xp))
     (first res)))
 
 (defn $x:attrs* [xp xml attr-name]
@@ -259,16 +247,15 @@
               xp))
     (first res)))
 
-
 (defmulti format-tag (fn [arg & [with-attrs]] (class arg)))
 
 (defn format-tag-seq [tag-and-attrs & [with-attrs]]
   (if with-attrs
     (let [[tag & attrs] tag-and-attrs]
       (format "%s %s" (name tag)
-              (str-utils/str-join " " (map (fn [[key val]]
-                                             (format "%s=\"%s\"" (if (keyword? key) (name key) key) val))
-                                           (partition 2 attrs)))))
+              (s/join " " (map (fn [[key val]]
+                                 (format "%s=\"%s\"" (if (keyword? key) (name key) key) val))
+                               (partition 2 attrs)))))
     (name (first tag-and-attrs))))
 
 (defmethod format-tag clojure.lang.PersistentVector [tag-and-attrs & [with-attrs]]
@@ -283,10 +270,8 @@
 (defmethod format-tag :default [tag & [_]]
   (str tag))
 
-
 (defn tag [tag & body]
   (format "<%s>%s</%s>" (format-tag tag :with-attrs) (apply str body) (format-tag tag)))
-
 
 ;; (defn string-reader [s] (InputSource. (StringReader. s)))
 ;; ;; turn a Node into the same form the clojure.xml/parse builds
@@ -356,7 +341,13 @@
                (let [$x (fn [xp] ($x xp *doc*))]
                  ~@body)))
 
+  ($x:text "/this" (xml-bytes->dom (.getBytes "<this>foo</this>") {:validation true}))
+  ($x:text "/this" (xml-bytes->dom (.getBytes "<this>foo</this>") {:validation false}))
+  
+  (binding [*validation* false]
+    ($x:text "/this" "<this>foo</this>"))
+  
+  ($x:text "/this"
+           (xml->doc "<this>foo</this>" {:validating false}))
 
-)
-
-
+  )

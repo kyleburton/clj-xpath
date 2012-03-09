@@ -1,6 +1,5 @@
-(ns org.clojars.kyleburton.clj-xpath-test
-  (:use clojure.contrib.test-is
-        [org.clojars.kyleburton.clj-xpath :as xp :only [$x $x:tag $x:text $x:attrs $x:node $x:tag? $x:text? $x:tag+ $x:text+ tag xp:compile xml->doc]]))
+(ns clj-xpath.test.core
+  (:use [clj-xpath.core :as xp :only [$x $x:tag $x:text $x:attrs $x:node $x:tag? $x:text? $x:tag+ $x:text+ xp:compile tag xml->doc]]))
 
 (def *xml* {:simple (tag :top-tag "this is a foo")
             :attrs  (tag [:top-tag :name "bobby tables"]
