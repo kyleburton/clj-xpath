@@ -93,12 +93,18 @@
 (def ^:dynamic *xpath-factory* (org.apache.xpath.jaxp.XPathFactoryImpl.))
 (def ^:dynamic *xpath-compiler* (.newXPath *xpath-factory*))
 
-(defmethod xp:compile String          [xpexpr] (.compile *xpath-compiler* xpexpr))
-(defmethod xp:compile XPathExpression [xpexpr] xpexpr)
-(defmethod xp:compile :default        [xpexpr]
-  (throwf "xp:compile: don't know how to compile xpath expr of type:%s '%s'" (class xpexpr) xpexpr))
+(defmethod xp:compile String [xpexpr]
+  (.compile *xpath-compiler* xpexpr))
 
-(defmulti $x (fn [xp xml-thing] (class xml-thing)))
+(defmethod xp:compile XPathExpression [xpexpr]
+  xpexpr)
+
+(defmethod xp:compile :default [xpexpr]
+  (throwf "xp:compile: don't know how to compile xpath expr of type:%s '%s'"
+          (class xpexpr) xpexpr))
+
+(defmulti $x
+  (fn [xp xml-thing] (class xml-thing)))
 
 (defmethod $x String [xp xml]
   ($x xp (xml->doc (.getBytes xml *default-encoding*))))
