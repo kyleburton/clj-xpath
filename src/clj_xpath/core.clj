@@ -1,6 +1,5 @@
 (ns clj-xpath.core
   (:require [clojure.string :as s]
-            [clojure.java.io :as io]
             [clj-xpath.util :as u])
   (:import [java.io InputStream InputStreamReader StringReader File IOException ByteArrayInputStream]
            [org.xml.sax InputSource SAXException]
