@@ -1,5 +1,7 @@
 h1. clj-xpath
 
+Note: This library has two main branches, currently the master branch is for Clojure 1.2 compatability.  The clj-xpath-1.3 branch is for Clojure 1.3 compatability.  Both versions of the library are available on Clojars.
+
 h2. Description
 
 Simplified XPath Library for Clojure.  XML Parsers and an XPath implementation now comes with Java 6, though using the api directly can be verbose and confusing.  This library provides a thin layer around basic parsing and XPath interaction for common use cases.  I have personally found the ability to interactively tweak my xpath expressions to be a great productivity boost - even using this library only for that has helped me in my learning of and using xpath.  I hope you find it useful and would love to hear your feedback and suggestions.
