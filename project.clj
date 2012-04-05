@@ -5,6 +5,8 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"
             :distribution :repo
             :comments "Same as Clojure"}
+  :local-repo-classpath true
+  :dev-dependencies [[swank-clojure "1.4.2"]]
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [log4j/log4j "1.2.14"]
                  [xalan "2.7.1"]])
