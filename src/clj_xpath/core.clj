@@ -14,7 +14,7 @@
    [javax.xml.xpath             XPathFactory XPathConstants XPathExpression])
   (:gen-class))
 
-(def ^:dynamic *namespace-aware* (atom false))
+(def ^:dynamic *namespace-aware*  false)
 (def ^:dynamic *default-encoding* "UTF-8")
 
 (defn throwf [& args]
@@ -40,7 +40,7 @@
   (let [opts (or opts {})
         dom-factory (aprog1
                         (DocumentBuilderFactory/newInstance)
-                      (.setNamespaceAware it @*namespace-aware*)
+                      (.setNamespaceAware it *namespace-aware*)
                       (.setValidating it (opts :validation *validation*)))
         builder     (aprog1
                         (.newDocumentBuilder dom-factory)
@@ -51,7 +51,7 @@
 
 (defn- input-stream->dom [istr & [opts]]
   (let [dom-factory (doto (DocumentBuilderFactory/newInstance)
-                      (.setNamespaceAware @*namespace-aware*))
+                      (.setNamespaceAware *namespace-aware*))
         builder     (.newDocumentBuilder dom-factory)]
     (.parse builder istr)))
 
@@ -277,8 +277,8 @@
     (let [[tag & attrs] tag-and-attrs]
       (format "%s %s" (name tag)
               (str-utils/join " " (map (fn [[key val]]
-                                             (format "%s=\"%s\"" (if (keyword? key) (name key) key) val))
-                                           (partition 2 attrs)))))
+                                         (format "%s=\"%s\"" (if (keyword? key) (name key) key) val))
+                                       (partition 2 attrs)))))
     (name (first tag-and-attrs))))
 
 (defmethod format-tag clojure.lang.PersistentVector [tag-and-attrs & [with-attrs]]
@@ -320,17 +320,17 @@
                           (assoc m (get prefix-map k) k))
                         {}
                         (keys prefix-map))]
-   (proxy [javax.xml.namespace.NamespaceContext]
-       []
-     (getNamespaceURI [prefix]
-                      ;;(println (format "getNamespaceURI: %s => %s" prefix (get prefix-map prefix)))
-                      (get prefix-map prefix))
-     (getPrefixes [val]
-                  ;;(println (format "getPrefixes: %s" val))
-                  nil)
-     (getPrefix [uri]
-                ;;(println (format "getPrefix: %s => %s" uri (get uri-map uri)))
-                (get uri-map uri)))))
+    (proxy [javax.xml.namespace.NamespaceContext]
+        []
+      (getNamespaceURI [prefix]
+                       ;;(println (format "getNamespaceURI: %s => %s" prefix (get prefix-map prefix)))
+                       (get prefix-map prefix))
+      (getPrefixes [val]
+                   ;;(println (format "getPrefixes: %s" val))
+                   nil)
+      (getPrefix [uri]
+                 ;;(println (format "getPrefix: %s => %s" uri (get uri-map uri)))
+                 (get uri-map uri)))))
 
 ;; (defn string-reader [s] (InputSource. (StringReader. s)))
 ;; ;; turn a Node into the same form the clojure.xml/parse builds
@@ -367,10 +367,10 @@
 
   ($x:tag "/*" (slurp "/Users/kburton/personal/projects/sandbox/clj-xpath/pom.xml"))
 
-  (binding [*namespace-aware* (atom false)]
+  (binding [*namespace-aware*  false]
     ($x "//project" (slurp "/Users/kburton/personal/projects/sandbox/clj-xpath/pom.xml")))
 
-  (binding [*namespace-aware* (atom true)]
+  (binding [*namespace-aware*  true]
     ($x "//project" (slurp "/Users/kburton/personal/projects/sandbox/clj-xpath/pom.xml")))
 
   (map :tag ($x "//*" (slurp "/Users/kburton/personal/projects/sandbox/clj-xpath/pom.xml")))
@@ -404,3 +404,11 @@
   )
 
 
+(defn with-namespace-context* [context-map f]
+  (binding [*namespace-aware* true
+            *xpath-compiler*  (.newXPath *xpath-factory*)]
+    (.setNamespaceContext *xpath-compiler* (nscontext context-map))
+    (f)))
+
+(defmacro with-namespace-context [context-map & body]
+  `(with-namespace-context* ~context-map (fn [] ~@body)))

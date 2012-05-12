@@ -1,15 +1,15 @@
 (ns clj-xpath.test.core
   (:use [clojure.test]
         [clj-xpath.core :as xp
-         :only [$x $x:tag $x:text $x:attrs $x:node $x:tag? $x:text? $x:tag+ $x:text+ xp:compile tag xml->doc *xpath-compiler* *namespace-aware* nscontext xmlnsmap-from-root-node]]))
+         :only [$x $x:tag $x:text $x:attrs $x:node $x:tag? $x:text? $x:tag+ $x:text+ xp:compile tag xml->doc *xpath-compiler* *namespace-aware* nscontext xmlnsmap-from-root-node with-namespace-context]]))
 
 (def xml-fixtures {:simple (tag :top-tag "this is a foo")
-          :attrs  (tag [:top-tag :name "bobby tables"]
-                    "drop tables")
-          :nested (tag :top-tag
-                    (tag :inner-tag
-                      (tag :more-inner "inner tag body")))
-          :namespaces (slurp "fixtures/namespace1.xml")})
+                   :attrs  (tag [:top-tag :name "bobby tables"]
+                             "drop tables")
+                   :nested (tag :top-tag
+                             (tag :inner-tag
+                               (tag :more-inner "inner tag body")))
+                   :namespaces (slurp "fixtures/namespace1.xml")})
 
 (deftest test-xml->doc
   (is (isa? (class (xp/xml->doc (:simple xml-fixtures))) org.w3c.dom.Document))
@@ -78,8 +78,21 @@
 (deftest test-namespace
   (.setNamespaceContext
    *xpath-compiler*
-   (nscontext (xmlnsmap-from-root-node (:namespaces xml-fixtures))))
-  (binding [*namespace-aware* (atom true)]
+   (nscontext {"atom" "http://www.w3.org/2005/Atom"}))
+  (binding [*namespace-aware* true]
     (is (= "BookingCollection" ($x:text "//atom:title" (:namespaces xml-fixtures))))))
 
+(deftest test-with-ns-context-macro
+  (with-namespace-context
+      (xmlnsmap-from-root-node (:namespaces xml-fixtures))
+    (is (= "BookingCollection" ($x:text "//atom:title" (:namespaces xml-fixtures))))))
 
+(comment
+
+  (with-namespace-context {"atom" "http://www.w3.org/2005/Atom"}
+    ($x:text "//atom:title" (:namespaces xml-fixtures)))
+
+  (with-namespace-context (xmlnsmap-from-root-node (:namespaces xml-fixtures))
+    ($x:text "//atom:title" (:namespaces xml-fixtures)))
+
+  )
