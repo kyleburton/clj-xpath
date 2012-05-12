@@ -28,7 +28,7 @@
   (loop [length (.getLength node-list)
          idx    0
          res    []]
-    ;(logf "node-list: idx:%s node-list=%s length=%s" idx node-list length)
+                                        ;(logf "node-list: idx:%s node-list=%s length=%s" idx node-list length)
     (if (>= idx length)
       (reverse res)
       (recur length
@@ -74,12 +74,14 @@
     ($x:text "/this" "<this>foo</this>"))
 
   ($x:text "/this"
-   (xml->doc "<this>foo</this>" {:validating false}))
+           (xml->doc "<this>foo</this>" {:validating false}))
 
-)
+  )
 
-(defn attrs [nodeattrs]
-  ;(logf "attrs: nodeattrs=%s attrs=%s" nodeattrs (.getAttributes nodeattrs))
+(defn attrs
+  "Extract the attributes from the node."
+  [nodeattrs]
+                                        ;(logf "attrs: nodeattrs=%s attrs=%s" nodeattrs (.getAttributes nodeattrs))
   (if-let [the-attrs (.getAttributes nodeattrs)]
     (loop [[node & nodes] (node-list->seq (.getAttributes nodeattrs))
            res {}]
@@ -88,10 +90,14 @@
         res))
     nil))
 
-(defn text [#^Node node]
+(defn text
+  "Accessor for text content from the node."
+  [#^Node node]
   (.getTextContent node))
 
-(defn node-name [#^Node node]
+(defn node-name
+  "Accessor for the node's name."
+  [#^Node node]
   (keyword (.getNodeName node)))
 
 (defn- node->map [#^Node node]
@@ -102,7 +108,8 @@
 
 (defmulti xp:compile class)
 
-;(def *xpath-factory* (XPathFactory/newInstance))
+                                        ;(def *xpath-factory* (XPathFactory/newInstance))
+
 (def *xpath-factory* (org.apache.xpath.jaxp.XPathFactoryImpl.))
 (def *xpath-compiler* (.newXPath *xpath-factory*))
 
@@ -111,7 +118,9 @@
 (defmethod xp:compile :default        [xpexpr]
   (throwf "xp:compile: don't know how to compile xpath expr of type:%s '%s'" (class xpexpr) xpexpr))
 
-(defmulti $x (fn [xp xml-thing] (class xml-thing)))
+(defmulti $x
+  "Perform an xpath query on the given XML document which may be a String, byte array, or InputStream."
+  (fn [xp xml-thing] (class xml-thing)))
 
 (defmethod $x String [xp xml]
   ($x xp (xml->doc (.getBytes xml *default-encoding*))))
@@ -122,24 +131,28 @@
 (defmethod $x InputStream [xp istr]
   ($x xp (xml->doc istr)))
 
-;(defmethod $x clojure.lang.PersistentArrayMap [xp xml] ($x xp (:node xml)))
+                                        ;(defmethod $x clojure.lang.PersistentArrayMap [xp xml] ($x xp (:node xml)))
 (defmethod $x java.util.Map                   [xp xml] ($x xp (:node xml)))
 
 ;; assume a Document (or api compatible)
 (defmethod $x :default [xp-expression doc]
-    (map node->map
-         (node-list->seq
-          (.evaluate (xp:compile xp-expression) doc XPathConstants/NODESET))))
+  (map node->map
+       (node-list->seq
+        (.evaluate (xp:compile xp-expression) doc XPathConstants/NODESET))))
 
 ;; ($x "//*" (tag :foo "body"))
 
-(defn summarize [s len]
+(defn summarize
+  "Summarize a string to a specific maximu length (truncating it and adding ... if it is longer than len)."
+  [s len]
   (let [s (str s)]
     (if (>= len (.length s))
       s
       (str (.substring s 0 len) "..."))))
 
-(defn $x:tag* [xp xml]
+(defn $x:tag*
+  "Perform an xpath search, resulting in zero or more nodes, return just the tag name."
+  [xp xml]
   (map :tag ($x xp xml)))
 
 (defn $x:tag? [xp xml]
@@ -164,9 +177,9 @@
   (let [res ($x:tag* xp xml)]
     (if (not (= 1 (count res)))
       (throwf "Error, more (or less) than 1 result (%d) from xml(%s) for xpath(%s)"
-                    (count res)
-                    (summarize xml 10)
-                    xp))
+              (count res)
+              (summarize xml 10)
+              xp))
     (first res)))
 
 (defn $x:text* [xp xml]
@@ -194,9 +207,9 @@
   (let [res ($x:text* xp xml)]
     (if (not (= 1 (count res)))
       (throwf "Error, more (or less) than 1 result (%d) from xml(%s) for xpath(%s)"
-                    (count res)
-                    (summarize xml 10)
-                    xp))
+              (count res)
+              (summarize xml 10)
+              xp))
     (first res)))
 
 (defn $x:attrs* [xp xml attr-name]
@@ -288,6 +301,40 @@
   (format "<%s>%s</%s>" (format-tag tag :with-attrs) (apply str body) (format-tag tag)))
 
 
+
+(defn xmlnsmap-from-root-node [xml]
+  (let [attrs (:attrs (first ($x "//*" xml)))]
+    (reduce
+     (fn xyz [m k]
+       (if (.startsWith (name k) "xmlns:")
+         (let [val (get attrs k)
+               k    (.replace (name k) "xmlns:" "")]
+           (-> m
+               (assoc k   val)
+               (assoc val k)))
+         m))
+     {}
+     (keys attrs))))
+
+;;  (xmlnsmap-from-root-node (:namespaces org.clojars.kyleburton.clj-xpath-test/*xml*))
+
+(defn nscontext [prefix-map]
+  (let [uri-map (reduce (fn unmap [m k]
+                          (assoc m (get prefix-map k) k))
+                        {}
+                        (keys prefix-map))]
+   (proxy [javax.xml.namespace.NamespaceContext]
+       []
+     (getNamespaceURI [prefix]
+                      ;;(println (format "getNamespaceURI: %s => %s" prefix (get prefix-map prefix)))
+                      (get prefix-map prefix))
+     (getPrefixes [val]
+                  ;;(println (format "getPrefixes: %s" val))
+                  nil)
+     (getPrefix [uri]
+                ;;(println (format "getPrefix: %s => %s" uri (get uri-map uri)))
+                (get uri-map uri)))))
+
 ;; (defn string-reader [s] (InputSource. (StringReader. s)))
 ;; ;; turn a Node into the same form the clojure.xml/parse builds
 ;; (defmulti  node-parse (fn [thing] (class thing)))
@@ -357,6 +404,6 @@
                  ~@body)))
 
 
-)
+  )
 
 

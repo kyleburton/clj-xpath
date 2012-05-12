@@ -1,13 +1,14 @@
 (ns org.clojars.kyleburton.clj-xpath-test
   (:use clojure.contrib.test-is
-        [org.clojars.kyleburton.clj-xpath :as xp :only [$x $x:tag $x:text $x:attrs $x:node $x:tag? $x:text? $x:tag+ $x:text+ tag xp:compile xml->doc]]))
+        [org.clojars.kyleburton.clj-xpath :as xp :only [$x $x:tag $x:text $x:attrs $x:node $x:tag? $x:text? $x:tag+ $x:text+ tag xp:compile xml->doc nscontext xmlnsmap-from-root-node *xpath-compiler* *namespace-aware*]]))
 
 (def *xml* {:simple (tag :top-tag "this is a foo")
             :attrs  (tag [:top-tag :name "bobby tables"]
                       "drop tables")
             :nested (tag :top-tag
                       (tag :inner-tag
-                        (tag :more-inner "inner tag body")))})
+                        (tag :more-inner "inner tag body")))
+            :namespaces (slurp "fixtures/namespace1.xml")})
 
 (deftest test-xml->doc
   (is (isa? (class (xp/xml->doc (:simple *xml*))) org.w3c.dom.Document))
@@ -72,7 +73,25 @@
   (is (thrown? Exception        ($x:text+ "/foo" (:simple *xml*))))
   (is (= "this is a foo" (first ($x:text+ "/*"   (:simple *xml*))))))
 
+
+(deftest test-namespace
+  (.setNamespaceContext
+   *xpath-compiler*
+   (nscontext (xmlnsmap-from-root-node (:namespaces *xml*))))
+  (binding [*namespace-aware* (atom true)]
+    (is (= "BookingCollection" ($x:text "//atom:title" (:namespaces *xml*))))))
+
+
 (comment
+
+  (.setNamespaceContext
+   *xpath-compiler*
+   (nscontext {"atom" "http://www.w3.org/2005/Atom"}))
+  (binding [*namespace-aware* (atom true)]
+    ($x:text "//atom:title" (:namespaces *xml*)))
+  ;; => "BookingCollection"
+
+  (test-namespace)
 
   (is (= "this is a foo"
          ($x:text "/*" (:simple *xml*))))
@@ -91,5 +110,12 @@
 
   ($x:tag "./*" ($x:node "/top-tag/*" (:nested *xml*)))
   ($x:tag "./*" ($x:node "/top-tag"   (:nested *xml*)))
+
+  ($x:tag "./*" (:namespaces *xml*))
+
+
+  (:attrs (first ($x "//*" (:namespaces *xml*))))
+
+
 
   )
