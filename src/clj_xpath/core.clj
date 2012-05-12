@@ -1,7 +1,6 @@
-(ns org.clojars.kyleburton.clj-xpath
+(ns clj-xpath.core
   (:require
-   [clojure.contrib.str-utils :as str-utils]
-   [clojure.contrib.duck-streams :as ds])
+   [clojure.string :as str-utils])
   (:use
    [clj-etl-utils.lang-utils :only [raise aprog1]])
   (:import
@@ -15,8 +14,8 @@
    [javax.xml.xpath             XPathFactory XPathConstants XPathExpression])
   (:gen-class))
 
-(def *namespace-aware* (atom false))
-(def *default-encoding* "UTF-8")
+(def ^:dynamic *namespace-aware* (atom false))
+(def ^:dynamic *default-encoding* "UTF-8")
 
 (defn throwf [& args]
   (throw (RuntimeException. (apply format args))))
@@ -35,7 +34,7 @@
              (inc idx)
              (cons (.item node-list idx) res)))))
 
-(def *validation* false)
+(def ^:dynamic *validation* false)
 
 (defn- xml-bytes->dom [bytes & [opts]]
   (let [opts (or opts {})
@@ -108,10 +107,8 @@
 
 (defmulti xp:compile class)
 
-                                        ;(def *xpath-factory* (XPathFactory/newInstance))
-
-(def *xpath-factory* (org.apache.xpath.jaxp.XPathFactoryImpl.))
-(def *xpath-compiler* (.newXPath *xpath-factory*))
+(def ^:dynamic *xpath-factory* (org.apache.xpath.jaxp.XPathFactoryImpl.))
+(def ^:dynamic *xpath-compiler* (.newXPath *xpath-factory*))
 
 (defmethod xp:compile String          [xpexpr] (.compile *xpath-compiler* xpexpr))
 (defmethod xp:compile XPathExpression [xpexpr] xpexpr)
@@ -279,7 +276,7 @@
   (if with-attrs
     (let [[tag & attrs] tag-and-attrs]
       (format "%s %s" (name tag)
-              (str-utils/str-join " " (map (fn [[key val]]
+              (str-utils/join " " (map (fn [[key val]]
                                              (format "%s=\"%s\"" (if (keyword? key) (name key) key) val))
                                            (partition 2 attrs)))))
     (name (first tag-and-attrs))))

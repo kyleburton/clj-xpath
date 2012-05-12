@@ -9,5 +9,7 @@
   :local-repo-classpath true
   :dev-dependencies [[swank-clojure "1.4.2"]]
   :dependencies [[org.clojure/clojure "1.3.0"]
+                 [midje "1.4.0"]
                  [log4j/log4j "1.2.14"]
-                 [xalan "2.7.1"]])
+                 [xalan "2.7.1"]
+                 [org.clojars.kyleburton/clj-etl-utils "1.3.0"]])
