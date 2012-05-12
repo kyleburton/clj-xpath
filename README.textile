@@ -1,4 +1,6 @@
-h1. clj-xpath
+h1. clj-xpath : clj-xpath-1.3 Branch
+
+This branch is Clojure 1.3 compatible.
 
 Note: This library has two main branches, currently the master branch is for Clojure 1.2 compatability.  The clj-xpath-1.3 branch is for Clojure 1.3 compatability.  Both versions of the library are available on Clojars.
 
@@ -174,7 +176,7 @@ h3. Maven Coordinates For clj-xpath
     <dependency>
       <groupId>org.clojars.kyleburton</groupId>
       <artifactId>clj-xpath</artifactId>
-      <version>1.0.10</version>
+      <version>1.3.0</version>
     </dependency>
 </code></pre>
 
@@ -182,7 +184,7 @@ h3. Maven Coordinates For clj-xpath
 h3. Leiningen Dependency
 
 <pre>
-  [org.clojars.kyleburton/clj-xpath "1.0.10"]
+  [org.clojars.kyleburton/clj-xpath "1.3.0"]
 </pre>
 
 h2. Emacs and Slime
