@@ -170,6 +170,49 @@ Validation now off by default.  Validation is controlled by optional parameters 
     ($x:text "/this" "<this>foo</this>"))
 </code></pre>
 
+
+h2. XPath and XML Namespaces
+
+To use the xpath library with an XML document that utilizes XML namespaces, you can make use of the `with-namespace-context` macro providing a map of aliases to the xmlns URL:
+
+<pre><code>
+  (with-namespace-context {"atom" "http://www.w3.org/2005/Atom"}
+    ($x:text "//atom:title" xml-doc))
+  ;; => BookingCollection
+</pre></code>
+
+There is also a utility function that can pull the namespace declarations from the root node of your XML document:
+
+<pre><code>
+  (with-namespace-context (xmlnsmap-from-root-node xml-doc)
+    ($x:text "//atom:title" xml-doc))
+  ;; => BookingCollection
+</pre></code>
+
+These two examples assume the following XML document:
+
+<pre><code>
+<atom:feed xml:base="http://nplhost:8042/sap/opu/sdata/IWFND/RMTSAMPLEFLIGHT/"
+                  xmlns:atom="http://www.w3.org/2005/Atom"
+                  xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices"
+                  xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"
+                  xmlns:sap="http://www.sap.com/Protocols/SAPData">
+
+<atom:title>BookingCollection</atom:title>
+<atom:updated>2012-03-19T20:27:30Z</atom:updated>
+
+<atom:entry>
+<atom:author/>
+</atom:entry>
+
+<atom:entry>
+<atom:author/>
+<atom:content type="application/xml"/>
+</atom:entry>
+
+</atom:feed>
+</pre></code>
+
 h3. Maven Coordinates For clj-xpath
 
 <pre><code>
