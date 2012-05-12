@@ -2,6 +2,7 @@
     org.clojars.kyleburton/clj-xpath "1.0.11-SNAPSHOT"
   :description "Simplified XPath from Clojure."
   :url         "http://github.com/kyleburton/clj-xpath"
+  :lein-release {:deploy-vai :clojars}
   :license {:name "Eclipse Public License - v 1.0"
             :url "http://www.eclipse.org/legal/epl-v10.html"
             :distribution :repo
