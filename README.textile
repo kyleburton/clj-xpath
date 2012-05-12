@@ -176,6 +176,7 @@ h2. XPath and XML Namespaces
 To use the xpath library with an XML document that utilizes XML namespaces, you can make use of the `with-namespace-context` macro providing a map of aliases to the xmlns URL:
 
 <pre><code>
+  (def xml (slurp "fixtures/namespace1.xml"))
   (with-namespace-context {"atom" "http://www.w3.org/2005/Atom"}
     ($x:text "//atom:title" xml-doc))
   ;; => BookingCollection
@@ -184,6 +185,7 @@ To use the xpath library with an XML document that utilizes XML namespaces, you 
 There is also a utility function that can pull the namespace declarations from the root node of your XML document:
 
 <pre><code>
+  (def xml (slurp "fixtures/namespace1.xml"))
   (with-namespace-context (xmlnsmap-from-root-node xml-doc)
     ($x:text "//atom:title" xml-doc))
   ;; => BookingCollection
