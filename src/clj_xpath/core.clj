@@ -313,8 +313,6 @@
      {}
      (keys attrs))))
 
-;;  (xmlnsmap-from-root-node (:namespaces org.clojars.kyleburton.clj-xpath-test/*xml*))
-
 (defn nscontext [prefix-map]
   (let [uri-map (reduce (fn unmap [m k]
                           (assoc m (get prefix-map k) k))

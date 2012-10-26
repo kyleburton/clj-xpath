@@ -17,7 +17,7 @@ The build (see 'Building' for instructions on building this software) creates a 
 <pre><code>
 kyle@indigo64 ~/personal/projects/clj-xpath[master]$ bin/repl
 Clojure 1.0.0
-user=> (use 'org.clojars.kyleburton.clj-xpath)
+user=> (use 'clj-xpath.core)
 nil
 user=> (use 'clojure.contrib.duck-streams)
 nil
@@ -53,7 +53,7 @@ There are two forms of many of the functions, with one set ending with a star '*
 
 <pre><code>
 (ns example
-  (use [org.clojars.kyleburton.clj-xpath :only [$x $x:tag $x:text $x:attrs $x:attrs* $x:node]]))
+  (use [clj-xpath.core :only [$x $x:tag $x:text $x:attrs $x:attrs* $x:node]]))
 
 
 (def *some-xml*
@@ -164,7 +164,7 @@ Validation now off by default.  Validation is controlled by optional parameters 
 
 <pre><code>
   (ns your.namespace
-    (:use org.clojars.kyleburton.clj-xpath))
+    (:use clj-xpath.core))
 
   (binding [*validation* false]
     ($x:text "/this" "<this>foo</this>"))
