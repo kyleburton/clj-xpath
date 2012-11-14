@@ -1,4 +1,4 @@
-(defproject org.clojars.kyleburton/clj-xpath "1.3.2"
+(defproject org.clojars.kyleburton/clj-xpath "1.3.3-SNAPSHOT"
   :description "Simplified XPath from Clojure."
   :url         "http://github.com/kyleburton/clj-xpath"
   :lein-release {:deploy-vai :clojars}
