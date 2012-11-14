@@ -1,8 +1,6 @@
 (ns clj-xpath.core
   (:require
    [clojure.string :as str-utils])
-  (:use
-   [clj-etl-utils.lang-utils :only [raise aprog1]])
   (:import
    [java.io                     InputStream InputStreamReader StringReader File IOException ByteArrayInputStream]
    [org.xml.sax                 InputSource SAXException]
@@ -38,14 +36,14 @@
 
 (defn- xml-bytes->dom [bytes & [opts]]
   (let [opts (or opts {})
-        dom-factory (aprog1
-                        (DocumentBuilderFactory/newInstance)
+        dom-factory (let [it (DocumentBuilderFactory/newInstance)]
                       (.setNamespaceAware it *namespace-aware*)
-                      (.setValidating it (opts :validation *validation*)))
-        builder     (aprog1
-                        (.newDocumentBuilder dom-factory)
+                      (.setValidating it (opts :validation *validation*))
+                      it)
+        builder     (let [it (.newDocumentBuilder dom-factory)]
                       (if (contains? opts :error-handler)
-                        (.setErrorHandler it (:error-handler opts))))
+                        (.setErrorHandler it (:error-handler opts)))
+                      it)
         rdr         (ByteArrayInputStream. bytes)]
     (.parse builder rdr)))
 

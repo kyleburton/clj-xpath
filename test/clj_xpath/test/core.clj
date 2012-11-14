@@ -95,4 +95,6 @@
   (with-namespace-context (xmlnsmap-from-root-node (:namespaces xml-fixtures))
     ($x:text "//atom:title" (:namespaces xml-fixtures)))
 
+  (run-tests)
+
   )
