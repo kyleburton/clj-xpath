@@ -221,7 +221,7 @@ h3. Maven Coordinates For clj-xpath
     <dependency>
       <groupId>org.clojars.kyleburton</groupId>
       <artifactId>clj-xpath</artifactId>
-      <version>1.3.0</version>
+      <version>1.3.3</version>
     </dependency>
 </code></pre>
 
@@ -229,7 +229,7 @@ h3. Maven Coordinates For clj-xpath
 h3. Leiningen Dependency
 
 <pre>
-  [org.clojars.kyleburton/clj-xpath "1.3.0"]
+  [org.clojars.kyleburton/clj-xpath "1.3.3"]
 </pre>
 
 h2. Emacs and Slime
