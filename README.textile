@@ -232,17 +232,6 @@ h3. Leiningen Dependency
   [org.clojars.kyleburton/clj-xpath "1.3.3"]
 </pre>
 
-h2. Emacs and Slime
-
-The build creates an Emacs-lisp file in the bin directory which you can pull into your running Emacs to add it to the list of lisp implementations for SLIME.
-
-<pre><code>
-(add-to-list 'slime-lisp-implementations
-             '(clj-xpath ("/Users/kburton/personal/projects/clj-xpath/target/../bin/repl")
-                        :init swank-clojure-init
-                        :init-function krb-swank-clojure-init) t)
-</code></pre>
-
 h2. Authors
 
 * Kyle Burton <kyle.burton@gmail.com>
