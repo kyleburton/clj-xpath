@@ -8,6 +8,8 @@ h3. Overview
 
 "clj-xpath":https://github.com/kyleburton/clj-xpath wraps Java's XPath APIs to make it significantly easier to use for most common use cases.
 
+h3. "API Documentation":documentation/
+
 h3. Example
 
 {% highlight clojure %}

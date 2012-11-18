@@ -4,9 +4,129 @@ title: API Documentation
 navigation: main
 ---
 
-h1. clj-xpath API
+h1. clj-xpath API Reference
 
-h2. Creating Documents
+h2. Creating a Document
+
+The <code>$x</code> and related functions support Strings, and in many cases, other convenient types for these arguments.  In all cases where it expects an XML Document it can be given a String, a byte array or a Document.  Where an xpath expression is expected it will take either a String or a pre-compiled XPathExpression.  The act of parsing an XML document or compiling an xpath expression is an expensive activity.  With this flexibility, clj-xpath supports the convenience of in-line usage (with String data), as well as pre-parsed and pre-compiled instances for better performance.
+
+h2. @(xml->doc doc) => org.w3c.dom.Document@
+
+Creates an org.w3c.dom.Document.  The input document may be one of:
+
+* @String@
+* @byte[]@
+* @org.w3c.dom.Document@
+
+It is not necessary to pre-parse your documents to make use of the functions in @clj-xpath@, though doing so will significantly improve performance.
 
 h2. Applying XPath Expressions
+
+h3. @($x xpexpr doc) => (map [...])@
+
+This is the main xpath application function.  It takes an xpath expression (as a string) and a document and returns a sequence of matched elements as maps.  The map contains the node's tag, attributes, text content and the dom Node itself.
+
+{% highlight clojure %}
+{ :tag    :tag-name
+  :attrs  { :a "map" :of "the attributes" }
+  :text   "the body content of the node and it's children"
+  :node   org.w3c.dom.Node }
+{% endhighlight %}
+
+h2. Extraction Functions
+
+h3. <code>($x:tag*   xpexpr doc) => [:tag-name ...]</code>
+<code>($x:text* xpexpr doc) => ["the content" ..]</code>
+<code>($x:attrs* xpexpr doc) => [{:the "attrs" ...} ...]</code>
+<code>($x:node*  xpexpr doc) => [org.w3c.dom.Node ...]</code>
+
+These functions apply the xpath expression to the given document and return a sequence of the text, attrs or nodes respectively.
+
+h3. <code>($x:tag?   xpexpr doc) => [:tag-name ...]</code>
+<code>($x:text? xpexpr doc) => ["the content" ..]</code>
+<code>($x:attrs? xpexpr doc) => [{:the "attrs" ...} ...]</code>
+<code>($x:node?  xpexpr doc) => [org.w3c.dom.Node ...]</code>
+
+These functions apply the xpath expression to the given document and return either nil or the single result found.  Unlinke the singleton forms (see below), these do not throw and exception (just returning nil).
+
+h3. <code>($x:tag+   xpexpr doc) => [:tag-name ...]</code>
+<code>($x:text+ xpexpr doc) => ["the content" ..]</code>
+<code>($x:attrs+ xpexpr doc) => [{:the "attrs" ...} ...]</code>
+<code>($x:node+  xpexpr doc) => [org.w3c.dom.Node ...]</code>
+
+These functions apply the xpath expression to the given document and return multiple results - throwing an exception if the xpath expression matches no elements.
+
+h3. <code>($x:tag   xpexpr doc) => :tag-name</code>
+<code>($x:text  xpexpr doc) => "the content"</code>
+<code>($x:attrs xpexpr doc) => {:the "attrs" ...}</code>
+<code>($x:node  xpexpr doc) => org.w3c.dom.Node</code>
+
+These functions return the requested property from the single result of executing the xpath expression.  If the xpath expression identifies less than 1 result or more than 1 result in the given document, an exception is raised.
+
+h2. Precompliation of XPath Expressions
+
+h3. @($x:compile xpexpr) => javax.xml.xpath.XPathExpression@
+
+Pre-compiles the xpath expression.  In cases of repeated execution of an xpath expression this will improve performance.
+
+
+h2. Validation
+
+Validation off by default.  Validation is controlled by optional parameters passed to @xml-bytes->dom@, or by overriding the atom @*validation*@ to true:
+
+{% highlight clojure %}
+
+(ns your.namespace
+  (:use clj-xpath.core))
+
+(binding [*validation* false]
+  ($x:text "/this" "<this>foo</this>"))
+
+{% endhighlight %}
+
+h2. XPath and XML Namespaces
+
+These examples assume the following XML document:
+
+{% highlight xml %}
+<atom:feed xml:base="http://nplhost:8042/sap/opu/sdata/IWFND/RMTSAMPLEFLIGHT/"
+                  xmlns:atom="http://www.w3.org/2005/Atom"
+                  xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices"
+                  xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"
+                  xmlns:sap="http://www.sap.com/Protocols/SAPData">
+
+  <atom:title>BookingCollection</atom:title>
+  <atom:updated>2012-03-19T20:27:30Z</atom:updated>
+  
+  <atom:entry>
+    <atom:author/>
+  </atom:entry>
+  
+  <atom:entry>
+    <atom:author/>
+    <atom:content type="application/xml"/>
+  </atom:entry>
+
+</atom:feed>
+
+{% endhighlight %}
+
+
+To use the xpath library with an XML document that utilizes XML namespaces, you can make use of the `with-namespace-context` macro providing a map of aliases to the xmlns URL:
+
+{% highlight clojure %}
+(def xml (slurp "fixtures/namespace1.xml"))
+(with-namespace-context {"atom" "http://www.w3.org/2005/Atom"}
+  ($x:text "//atom:title" xml-doc))
+;; => BookingCollection
+{% endhighlight %}
+
+There is also a utility function that can pull the namespace declarations from the root node of your XML document:
+
+{% highlight clojure %}
+(def xml (slurp "fixtures/namespace1.xml"))
+(with-namespace-context (xmlnsmap-from-root-node xml-doc)
+  ($x:text "//atom:title" xml-doc))
+;; => BookingCollection
+{% endhighlight %}
 
