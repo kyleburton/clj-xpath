@@ -94,10 +94,18 @@
   (keyword (.getNodeName node)))
 
 (defn- node->map [#^Node node]
-  {:node node
-   :tag   (node-name node)
-   :attrs (attrs node)
-   :text  (text node)})
+  (let [lazy-children (fn [n] (delay
+                               (map node->map
+                                    (node-list->seq (.getChildNodes n)))))
+        m  {:node node
+            :tag   (node-name node)
+            :attrs (attrs node)
+            :text  (text node)}
+        m   (if (.hasChildNodes node)
+              (assoc m :children (lazy-children node))
+              m)
+        ]
+    m))
 
 (defmulti xp:compile class)
 

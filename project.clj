@@ -1,4 +1,4 @@
-(defproject org.clojars.kyleburton/clj-xpath "1.3.4-SNAPSHOT"
+(defproject org.clojars.kyleburton/clj-xpath "1.4.0-SNAPSHOT"
   :description "Simplified XPath from Clojure."
   :url         "http://github.com/kyleburton/clj-xpath"
   :lein-release {:deploy-via :clojars}
@@ -9,5 +9,5 @@
   :local-repo-classpath true
   :dev-dependencies [[swank-clojure "1.4.2"]
                      [midje "1.4.0"]]
-  :dependencies [[org.clojure/clojure "1.3.0"]
+  :dependencies [[org.clojure/clojure "1.5.0-alpha6"]
                  [xalan "2.7.1"]])

@@ -87,6 +87,11 @@
       (xmlnsmap-from-root-node (:namespaces xml-fixtures))
     (is (= "BookingCollection" ($x:text "//atom:title" (:namespaces xml-fixtures))))))
 
+(deftest test-lazy-children
+  (is (nil? (:children ($x "/top-tag/*" (:simple xml-fixtures)))))
+  (is (not  (realized? (:children (first ($x "/top-tag/*" (:nested xml-fixtures)))))))
+  (is (=    "inner tag body" (:text (first (deref (:children (first ($x "/top-tag/*" (:nested xml-fixtures))))))))))
+
 (comment
 
   (with-namespace-context {"atom" "http://www.w3.org/2005/Atom"}
