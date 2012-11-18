@@ -11,7 +11,7 @@ h3. Overview
 h3. Example
 
 {% highlight clojure %}
-;; This is an exmaple of using clj-xpath.  In this we'll grab an RSS
+;; This is an exmaple of using clj-xpath.  We'll grab an RSS
 ;; feed (an XML document) and we'lll use clj-xpath to explore the
 ;; structure of the document as well as extract its contents.
 
