@@ -1,0 +1,6 @@
+destination: ../site
+auto:        false
+lsi:         false
+server_port: 4001
+pygments:    true
+permalink:   date

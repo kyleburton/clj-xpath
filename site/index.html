@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="clj-xpath: Simplified XPath for Clojure" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="/clj-xpath/site/stylesheets/stylesheet.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="/clj-xpath/site/css/transition.js.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="/clj-xpath/site/css/pygments.css">
+
+    <title>Transition.js - Detangled in browser Web Testing</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/kyleburton/clj-xpath">View on GitHub</a>
+
+          <h1 id="project_title"><a href="/clj-xpath/">clj-xpath</a></h1>
+          <h2 id="project_tagline">Simplified XPath for Clojure</h2>
+
+          
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/kyleburton/clj-xpath/archive/master.zip">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/kyleburton/clj-xpath/archive/master.tar.gz">Download this project as a tar.gz file</a>
+            </section>
+          
+
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+
+      
+
+      <section id="main_content" class="inner">
+      <h3>Overview</h3>
+<p><a href="https://github.com/kyleburton/clj-xpath">clj-xpath</a> wraps Java&#8217;s XPath APIs to make it significantly easier to use for most common use cases.</p>
+<h3>Example</h3>
+<div class="highlight"><pre><code class="clojure"><span class="c1">;; This is an exmaple of using clj-xpath.  In this we&#39;ll grab an RSS</span>
+<span class="c1">;; feed (an XML document) and we&#39;lll use clj-xpath to explore the</span>
+<span class="c1">;; structure of the document as well as extract its contents.</span>
+
+<span class="p">(</span><span class="kd">ns </span><span class="nv">clj-xpath-examples.core</span>
+  <span class="p">(</span><span class="ss">:require</span>
+   <span class="p">[</span><span class="nv">clojure.string</span> <span class="ss">:as</span> <span class="nv">string</span><span class="p">]</span>
+   <span class="p">[</span><span class="nv">clojure.pprint</span> <span class="ss">:as</span> <span class="nv">pp</span><span class="p">])</span>
+  <span class="p">(</span><span class="ss">:use</span>
+   <span class="nv">clj-xpath.core</span><span class="p">))</span>
+
+<span class="c1">;; Lets define an URL to an RSS feed...</span>
+<span class="p">(</span><span class="k">def </span><span class="nv">hackernews-rss-url</span> <span class="s">&quot;http://news.ycombinator.com/rss&quot;</span><span class="p">)</span>
+
+<span class="c1">;; Now lets fetch the RSS, remembering it so we don&#39;t fetch it more</span>
+<span class="c1">;; than once (hitting Hacker News multiple times would be rude).</span>
+<span class="p">(</span><span class="k">def </span><span class="nv">hackernews-rss-xml</span>
+     <span class="p">(</span><span class="nf">memoize</span> <span class="p">(</span><span class="k">fn </span><span class="p">[]</span> <span class="p">(</span><span class="nb">slurp </span><span class="nv">hackernews-rss-url</span><span class="p">))))</span>
+
+<span class="p">(</span><span class="nf">comment</span>
+  <span class="c1">;; We can see that the XML loaded by asking for the character count:</span>
+  <span class="p">(</span><span class="nb">count </span><span class="p">(</span><span class="nf">hackernews-rss-xml</span><span class="p">))</span>
+  <span class="c1">;;  =&gt; 9968</span>
+  <span class="p">)</span>
+
+<span class="c1">;; Now lets parse the XML into a Document.  It is not strictly</span>
+<span class="c1">;; necessary to memoize, but this provides a cache of the parsed</span>
+<span class="c1">;; document which will make operations on the document faster.</span>
+<span class="p">(</span><span class="k">def </span><span class="nv">xmldoc</span>
+     <span class="p">(</span><span class="nf">memoize</span> <span class="p">(</span><span class="k">fn </span><span class="p">[]</span> <span class="p">(</span><span class="nf">xml-&gt;doc</span> <span class="p">(</span><span class="nf">hackernews-rss-xml</span><span class="p">)))))</span>
+
+<span class="p">(</span><span class="nf">comment</span>
+  <span class="c1">;; With a document, we can now perform some XPath operations on the document:</span>
+
+  <span class="c1">;; extract the root node:</span>
+  <span class="c1">;; NB: I&#39;m removing :text (the dissoc) because it&#39;s large and not very useful at this point...</span>
+  <span class="p">(</span><span class="nf">-&gt;</span>
+   <span class="p">(</span><span class="nf">$x</span> <span class="s">&quot;/*&quot;</span> <span class="p">(</span><span class="nf">xmldoc</span><span class="p">))</span>
+   <span class="nv">first</span>
+   <span class="p">(</span><span class="nb">dissoc </span><span class="ss">:text</span><span class="p">))</span>
+  <span class="c1">;; =&gt; {:node #&lt;DeferredElementImpl [rss: null]&gt;, :tag :rss, :attrs {:version &quot;2.0&quot;}}</span>
+
+  <span class="c1">;; extract the root node&#39;s tag:</span>
+  <span class="p">(</span><span class="nf">$x</span><span class="ss">:tag</span> <span class="s">&quot;/*&quot;</span> <span class="p">(</span><span class="nf">xmldoc</span><span class="p">))</span>
+  <span class="c1">;; =&gt; :rss</span>
+
+  <span class="c1">;; extract the channel&#39;s title link and description:</span>
+  <span class="p">(</span><span class="nf">$x</span><span class="ss">:text</span> <span class="s">&quot;/rss/channel/title&quot;</span> <span class="p">(</span><span class="nf">xmldoc</span><span class="p">))</span>
+  <span class="c1">;; =&gt; &quot;Hacker News&quot;</span>
+
+  <span class="p">(</span><span class="nf">$x</span><span class="ss">:text</span> <span class="s">&quot;/rss/channel/link&quot;</span> <span class="p">(</span><span class="nf">xmldoc</span><span class="p">))</span>
+  <span class="c1">;; =&gt; &quot;http://news.ycombinator.com/&quot;</span>
+
+  <span class="p">(</span><span class="nf">$x</span><span class="ss">:text</span> <span class="s">&quot;/rss/channel/description&quot;</span> <span class="p">(</span><span class="nf">xmldoc</span><span class="p">))</span>
+  <span class="c1">;; =&gt; &quot;Links for the intellectually curious, ranked by readers.&quot;</span>
+
+  <span class="c1">;; If you&#39;re not intimately familiar with the structure of your XML</span>
+  <span class="c1">;; seeing what it looks like can be a pain, so we&#39;ll define a few</span>
+  <span class="c1">;; more helper functions...</span>
+  <span class="p">)</span>
+
+<span class="c1">;; Traverses the entire document, returning a distincted list of the</span>
+<span class="c1">;; tags (in no particular order).</span>
+<span class="p">(</span><span class="kd">defn </span><span class="nv">all-tags</span> <span class="p">[</span><span class="nv">doc</span><span class="p">]</span>
+  <span class="p">(</span><span class="nf">map</span>
+   <span class="c1">;; turn the keywords into strings</span>
+   <span class="nv">name</span>
+   <span class="p">(</span><span class="nf">seq</span>
+    <span class="c1">;; reduce the stream of nodes into a distinct list</span>
+    <span class="p">(</span><span class="nf">reduce</span>
+     <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">acc</span> <span class="nv">node</span><span class="p">]</span>
+       <span class="p">(</span><span class="nb">conj </span><span class="nv">acc</span> <span class="p">(</span><span class="ss">:tag</span> <span class="nv">node</span><span class="p">)))</span>
+     <span class="o">#</span><span class="p">{}</span>
+     <span class="c1">;; tree-seq flattens the document into a one-dimensional stream</span>
+     <span class="c1">;; of nodes:</span>
+     <span class="p">(</span><span class="nb">tree-seq </span><span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">n</span><span class="p">]</span> <span class="p">(</span><span class="ss">:node</span> <span class="nv">n</span><span class="p">))</span>
+               <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">n</span><span class="p">]</span> <span class="p">(</span><span class="nf">$x</span> <span class="s">&quot;./*&quot;</span> <span class="nv">n</span><span class="p">))</span>
+               <span class="p">(</span><span class="nb">first </span><span class="p">(</span><span class="nf">$x</span> <span class="s">&quot;./*&quot;</span> <span class="nv">doc</span><span class="p">)))))))</span>
+
+<span class="p">(</span><span class="nf">coment</span>
+
+ <span class="c1">;; Lets use that to see what all the tags are:</span>
+ <span class="p">(</span><span class="nf">all-tags</span> <span class="p">(</span><span class="nf">xmldoc</span><span class="p">))</span>
+ <span class="c1">;; (&quot;link&quot; &quot;item&quot; &quot;title&quot; &quot;channel&quot; &quot;rss&quot; &quot;comments&quot; &quot;description&quot;)</span>
+
+ <span class="c1">;; That helps a bit, but it&#39;s still not too useful, as it doesn&#39;t</span>
+ <span class="c1">;; show us how they nest.  Lets try another helper function...</span>
+ <span class="p">)</span>
+
+<span class="c1">;; Better would be to visit each node in the document, keeping track</span>
+<span class="c1">;; of the path.  The callback to this function will be passed 2</span>
+<span class="c1">;; arguments:</span>
+<span class="c1">;;  * path: the path to the node being visited</span>
+<span class="c1">;;  * node: the node being visited</span>
+<span class="p">(</span><span class="kd">defn </span><span class="nv">visit-nodes</span>
+  <span class="p">([</span><span class="nb">path </span><span class="nv">nodes</span> <span class="nv">f</span><span class="p">]</span>
+     <span class="p">(</span><span class="nf">vec</span>
+      <span class="p">(</span><span class="nf">mapcat</span>
+       <span class="o">#</span><span class="p">(</span><span class="nf">vec</span>
+         <span class="p">(</span><span class="nf">cons</span>
+          <span class="c1">;; invoke the callback on the each of the nodes</span>
+          <span class="p">(</span><span class="nf">f</span> <span class="p">(</span><span class="nb">conj path </span><span class="p">(</span><span class="ss">:tag</span> <span class="nv">%1</span><span class="p">))</span> <span class="nv">%1</span><span class="p">)</span>
+          <span class="c1">;; visit each of the children of this node</span>
+          <span class="p">(</span><span class="nf">visit-nodes</span>
+           <span class="p">(</span><span class="nb">conj path </span><span class="p">(</span><span class="ss">:tag</span> <span class="nv">%1</span><span class="p">))</span>
+           <span class="p">(</span><span class="nf">$x</span> <span class="s">&quot;./*&quot;</span> <span class="nv">%1</span><span class="p">)</span> <span class="nv">f</span><span class="p">)))</span>
+       <span class="nv">nodes</span><span class="p">))))</span>
+
+<span class="p">(</span><span class="nf">comment</span>
+  <span class="c1">;; Visit each part of the document (tree) and print out what the path to each tag looks like:</span>
+  <span class="p">(</span><span class="nf">visit-nodes</span> <span class="p">[]</span>
+               <span class="p">(</span><span class="nf">$x</span> <span class="s">&quot;./*&quot;</span> <span class="p">(</span><span class="nf">xmldoc</span><span class="p">))</span>
+               <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">p</span> <span class="nv">n</span><span class="p">]</span>
+                 <span class="p">(</span><span class="nf">printf</span> <span class="s">&quot;%s tag:%s\n&quot;</span>
+                         <span class="p">(</span><span class="nb">apply str </span><span class="p">(</span><span class="nf">interpose</span> <span class="s">&quot;/&quot;</span> <span class="p">(</span><span class="nb">map name </span><span class="nv">p</span><span class="p">)))</span>
+                         <span class="p">(</span><span class="nb">name </span><span class="p">(</span><span class="ss">:tag</span> <span class="nv">n</span><span class="p">)))))</span>
+  <span class="c1">;; Here&#39;s the output from the above:</span>
+  <span class="c1">;;     rss tag:rss</span>
+  <span class="c1">;;     rss/channel tag:channel</span>
+  <span class="c1">;;     rss/channel/title tag:title</span>
+  <span class="c1">;;     rss/channel/link tag:link</span>
+  <span class="c1">;;     rss/channel/description tag:description</span>
+  <span class="c1">;;     rss/channel/item tag:item</span>
+
+  <span class="p">)</span>
+
+<span class="c1">;; This is pretty much what we want, lets wrap it up into a</span>
+<span class="c1">;; funciton...</span>
+<span class="p">(</span><span class="kd">defn </span><span class="nv">all-paths</span> <span class="p">[</span><span class="nv">doc</span><span class="p">]</span>
+  <span class="p">(</span><span class="nf">map</span>
+   <span class="o">#</span><span class="p">(</span><span class="nb">str </span><span class="s">&quot;/&quot;</span> <span class="p">(</span><span class="nf">string/join</span> <span class="s">&quot;/&quot;</span> <span class="p">(</span><span class="nb">map name </span><span class="nv">%1</span><span class="p">)))</span>
+   <span class="p">(</span><span class="nf">first</span>
+    <span class="p">(</span><span class="nf">reduce</span>
+     <span class="p">(</span><span class="k">fn </span><span class="p">[[</span><span class="nv">acc</span> <span class="nv">set</span><span class="p">]</span> <span class="nv">p</span><span class="p">]</span>
+       <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">contains? set </span><span class="nv">p</span><span class="p">)</span>
+         <span class="p">[</span><span class="nv">acc</span> <span class="nv">set</span><span class="p">]</span>
+         <span class="p">[(</span><span class="nb">conj </span><span class="nv">acc</span> <span class="nv">p</span><span class="p">)</span> <span class="p">(</span><span class="nb">conj set </span><span class="nv">p</span><span class="p">)]))</span>
+     <span class="p">[[]</span> <span class="o">#</span><span class="p">{}]</span>
+     <span class="p">(</span><span class="nf">visit-nodes</span> <span class="p">[]</span>
+                  <span class="p">(</span><span class="nf">$x</span> <span class="s">&quot;./*&quot;</span> <span class="nv">doc</span><span class="p">)</span>
+                  <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">p</span> <span class="nv">n</span><span class="p">]</span>
+                    <span class="nv">p</span><span class="p">))))))</span>
+
+<span class="p">(</span><span class="nf">comment</span>
+  <span class="c1">;; Let&#39;s try it out:</span>
+  <span class="p">(</span><span class="nf">all-paths</span> <span class="p">(</span><span class="nf">xmldoc</span><span class="p">))</span>
+  <span class="c1">;; =&gt; (&quot;/rss&quot; &quot;/rss/channel&quot; &quot;/rss/channel/title&quot; &quot;/rss/channel/link&quot; &quot;/rss/channel/description&quot; &quot;/rss/channel/item&quot; &quot;/rss/channel/item/title&quot; &quot;/rss/channel/item/link&quot; &quot;/rss/channel/item/comments&quot; &quot;/rss/channel/item/description&quot;)</span>
+
+  <span class="c1">;; Format it bit nicer:</span>
+  <span class="p">(</span><span class="nb">doseq </span><span class="p">[</span><span class="nv">p</span> <span class="p">(</span><span class="nf">all-paths</span> <span class="p">(</span><span class="nf">xmldoc</span><span class="p">))]</span>
+    <span class="p">(</span><span class="nb">println </span><span class="nv">p</span><span class="p">))</span>
+
+  <span class="c1">;; There, a nice list of all the paths in the document:</span>
+  <span class="c1">;;   /rss</span>
+  <span class="c1">;;   /rss/channel</span>
+  <span class="c1">;;   /rss/channel/title</span>
+  <span class="c1">;;   /rss/channel/link</span>
+  <span class="c1">;;   /rss/channel/description</span>
+  <span class="c1">;;   /rss/channel/item</span>
+  <span class="c1">;;   /rss/channel/item/title</span>
+  <span class="c1">;;   /rss/channel/item/link</span>
+  <span class="c1">;;   /rss/channel/item/comments</span>
+  <span class="c1">;;   /rss/channel/item/description</span>
+
+
+  <span class="c1">;; Now that we can see a bit of the lay of the land, lets grab the first few items&#39; title and link:</span>
+  <span class="p">(</span><span class="nf">pp/pprint</span>
+   <span class="p">(</span><span class="nf">map</span>
+    <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">item</span><span class="p">]</span>
+      <span class="p">{</span><span class="ss">:title</span> <span class="p">(</span><span class="nf">$x</span><span class="ss">:text</span> <span class="s">&quot;./title&quot;</span> <span class="nv">item</span><span class="p">)</span>
+       <span class="ss">:link</span>  <span class="p">(</span><span class="nf">$x</span><span class="ss">:text</span> <span class="s">&quot;./link&quot;</span> <span class="nv">item</span><span class="p">)})</span>
+    <span class="p">(</span><span class="nb">take </span><span class="mi">5</span>
+          <span class="p">(</span><span class="nf">$x</span> <span class="s">&quot;/rss/channel/item&quot;</span> <span class="p">(</span><span class="nf">xmldoc</span><span class="p">)))))</span>
+
+  <span class="c1">;; ({:title &quot;Thank HN: Our friend is Safe and Sound&quot;</span>
+  <span class="c1">;;   :link</span>
+  <span class="c1">;;   &quot;http://jacquesmattheij.com/thank-hn-our-friend-is-safe-and-sound&quot;}</span>
+  <span class="c1">;;  {:title &quot;Entrepreneurshit&quot;</span>
+  <span class="c1">;;   :link</span>
+  <span class="c1">;;   &quot;http://www.bothsidesofthetable.com/2012/11/18/entrepreneurshit-the-blog-post-on-what-its-really-like/?awesm=bothsid.es_i2G&amp;utm_source=t.co&amp;utm_content=awesm-publisher&amp;utm_medium=bothsid.es-twitter&amp;utm_campaign=&quot;}</span>
+  <span class="c1">;;  {:title &quot;The British Ruby Conference has been cancelled&quot;</span>
+  <span class="c1">;;   :link &quot;http://2013.britruby.com&quot;}</span>
+  <span class="c1">;;  {:title &quot;Man Arrested At Airport for Unusual Watch&quot;</span>
+  <span class="c1">;;   :link</span>
+  <span class="c1">;;   &quot;http://depletedcranium.com/man-arrested-at-airport-for-unusual-watch/&quot;}</span>
+  <span class="c1">;;  {:title</span>
+  <span class="c1">;;   &quot;Textadept: fast, minimalist, and Lua-extensible cross-platform text editor&quot;</span>
+  <span class="c1">;;   :link &quot;http://foicica.com/textadept&quot;})</span>
+
+
+
+  <span class="c1">;; That concludes the overview of clj-xpath&#39;s main features.</span>
+  <span class="p">)</span>
+</code></pre>
+</div>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">cl-xpath maintained by <a href="https://github.com/kyleburton">kyleburton</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+  </body>
+</html>

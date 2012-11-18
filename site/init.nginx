@@ -1,0 +1,73 @@
+#!/bin/bash
+# set -exu
+nginx_master_pid () {
+  ps aux | grep '[n]ginx: master' | awk '{print $2}'
+}
+
+nginx_master_is_running () {
+  test -n "$(nginx_master_pid)"
+}
+
+nginx_master_pid
+
+case "$1" in
+  status)
+    if nginx_master_is_running; then
+      echo "OK: pid=$(nginx_master_pid)"
+    else
+      echo "NO nginx master process"
+    fi
+    ;;
+
+  start)
+    if nginx_master_is_running; then
+      echo "Master process is already running: $(nginx_master_pid)"
+    else
+      echo -n "starting nginx"
+      nginx
+      OK=""
+      for ii in $(seq 1 10); do
+        echo -n "."
+        if nginx_master_is_running; then
+          OK=true
+          break
+        fi
+      done
+      if [ -n "$OK" ]; then
+        echo "ok"
+      else
+        echo "error starting nginx"
+      fi
+    fi
+    ;;
+
+  stop)
+    if nginx_master_is_running; then
+      kill $(nginx_master_pid)
+    else
+      echo "Master process not running"
+    fi
+    ;;
+
+  reload)
+    if nginx_master_is_running; then
+      kill -HUP $(nginx_master_pid)
+    else
+      echo "Master process not running"
+    fi
+    ;;
+
+  restart)
+    $0 stop
+    sleep 1
+    $0 start
+    ;;
+
+  tail)
+    tail -f $HOME/local/logs/{access,error}.log
+    ;;
+
+  *)
+   echo "$1 start|stop|reload|restart|status"
+   ;;
+esac
