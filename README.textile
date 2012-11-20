@@ -12,15 +12,19 @@ h2. Use
 
 For "Leiningen":https://github.com/technomancy/leiningen add the following dependency to your project.clj file:
 
+<pre>
     [org.clojars.kyleburton/clj-xpath "1.3.3"]
+</pre>
 
 For Maven: add the following in your pom.xml file in the `dependencies` section:
 
+<pre>
     <dependency>
       <groupId>org.clojars.kyleburton</groupId>
       <artifactId>clj-xpath</artifactId>
       <version>1.3.3</version>
     </dependency>
+</pre>
 
 h2. "Documentation":http://kyleburton.github.com/clj-xpath/site/
 
