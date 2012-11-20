@@ -1,12 +1,8 @@
-h1. clj-xpath : clj-xpath-1.3 Branch
-
-This branch is Clojure 1.3 compatible.
-
-Note: This library has two main branches, currently the master branch (this branch) is for Clojure 1.3 compatability.  The clj-xpath-1.2 branch is for Clojure 1.2 compatability.  Both versions of the library are available on Clojars.
-
 h1. Overview
 
 "clj-xpath":http://kyleburton.github.com/clj-xpath/site/ is a library that makes it easier to with XPath from Clojure.
+
+Note: This library has two main branches, the master branch (this branch) is for Clojure 1.3 compatability.  The clj-xpath-1.2 branch is for Clojure 1.2 compatability.  Both versions of the library are available on Clojars.
 
 h2. Use
 
