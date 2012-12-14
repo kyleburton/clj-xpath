@@ -80,7 +80,7 @@
 <h3><code>($x:compile xpexpr) =&gt; javax.xml.xpath.XPathExpression</code></h3>
 <p>Pre-compiles the xpath expression.  In cases of repeated execution of an xpath expression this will improve performance.</p>
 <h2>Validation</h2>
-<p>Validation off by default.  Validation is controlled by optional parameters passed to <code>xml-bytes-&gt;dom</code>, or by overriding the atom <code>*validation*</code> to true:</p>
+<p>Validation is off by default.  Validation is controlled by optional parameters passed to <code>xml-bytes-&gt;dom</code>, or by overriding the dynamic var <code>*validation*</code> to true:</p>
 <div class="highlight"><pre><code class="clojure"><span class="p">(</span><span class="kd">ns </span><span class="nv">your.namespace</span>
   <span class="p">(</span><span class="ss">:use</span> <span class="nv">clj-xpath.core</span><span class="p">))</span>
 

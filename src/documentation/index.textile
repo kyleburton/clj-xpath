@@ -73,7 +73,7 @@ Pre-compiles the xpath expression.  In cases of repeated execution of an xpath e
 
 h2. Validation
 
-Validation off by default.  Validation is controlled by optional parameters passed to @xml-bytes->dom@, or by overriding the atom @*validation*@ to true:
+Validation is off by default.  Validation is controlled by optional parameters passed to @xml-bytes->dom@, or by overriding the dynamic var @*validation*@ to true:
 
 {% highlight clojure %}
 
