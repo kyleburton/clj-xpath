@@ -47,11 +47,12 @@
 <p>It is not necessary to pre-parse your documents to make use of the functions in <code>clj-xpath</code>, though doing so will significantly improve performance.</p>
 <h2>Applying XPath Expressions</h2>
 <h3><code>($x xpexpr doc) =&gt; (map [...])</code></h3>
-<p>This is the main xpath application function.  It takes an xpath expression (as a string) and a document and returns a sequence of matched elements as maps.  The map contains the node&#8217;s tag, attributes, text content and the dom Node itself.</p>
-<div class="highlight"><pre><code class="clojure"><span class="p">{</span> <span class="ss">:tag</span>    <span class="ss">:tag-name</span>
-  <span class="ss">:attrs</span>  <span class="p">{</span> <span class="ss">:a</span> <span class="s">&quot;map&quot;</span> <span class="ss">:of</span> <span class="s">&quot;the attributes&quot;</span> <span class="p">}</span>
-  <span class="ss">:text</span>   <span class="s">&quot;the body content of the node and it&#39;s children&quot;</span>
-  <span class="ss">:node</span>   <span class="nv">org.w3c.dom.Node</span> <span class="p">}</span>
+<p>This is the main xpath application function.  It takes an xpath expression (as a string) and a document and returns a sequence of matched elements as maps.  The map contains the node&#8217;s tag, attributes, text content, the dom Node itself and a lazy sequence of the node&#8217;s children.</p>
+<div class="highlight"><pre><code class="clojure"><span class="p">{</span> <span class="ss">:tag</span>      <span class="ss">:tag-name</span>
+  <span class="ss">:attrs</span>    <span class="p">{</span> <span class="ss">:a</span> <span class="s">&quot;map&quot;</span> <span class="ss">:of</span> <span class="s">&quot;the attributes&quot;</span> <span class="p">}</span>
+  <span class="ss">:text</span>     <span class="s">&quot;the body content of the node and it&#39;s children&quot;</span>
+  <span class="ss">:node</span>     <span class="nv">org.w3c.dom.Node</span>
+  <span class="ss">:children</span> <span class="nv">...seq</span> <span class="nv">of</span> <span class="nv">children...</span> <span class="p">}</span>
 </code></pre>
 </div>
 <h2>Extraction Functions</h2>

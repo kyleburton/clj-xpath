@@ -24,13 +24,14 @@ h2. Applying XPath Expressions
 
 h3. @($x xpexpr doc) => (map [...])@
 
-This is the main xpath application function.  It takes an xpath expression (as a string) and a document and returns a sequence of matched elements as maps.  The map contains the node's tag, attributes, text content and the dom Node itself.
+This is the main xpath application function.  It takes an xpath expression (as a string) and a document and returns a sequence of matched elements as maps.  The map contains the node's tag, attributes, text content, the dom Node itself and a lazy sequence of the node's children.
 
 {% highlight clojure %}
-{ :tag    :tag-name
-  :attrs  { :a "map" :of "the attributes" }
-  :text   "the body content of the node and it's children"
-  :node   org.w3c.dom.Node }
+{ :tag      :tag-name
+  :attrs    { :a "map" :of "the attributes" }
+  :text     "the body content of the node and it's children"
+  :node     org.w3c.dom.Node
+  :children ...seq of children... }
 {% endhighlight %}
 
 h2. Extraction Functions
