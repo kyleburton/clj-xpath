@@ -34,8 +34,8 @@
 
 (def ^:dynamic *validation* false)
 
-(defn- xml-bytes->dom [bytes & [opts]]
-  (let [opts (or opts {})
+(defn- input-stream->dom [istr & [opts]]
+  (let [opts        (or opts {})
         dom-factory (let [it (DocumentBuilderFactory/newInstance)]
                       (.setNamespaceAware it *namespace-aware*)
                       (.setValidating it (opts :validation *validation*))
@@ -43,15 +43,11 @@
         builder     (let [it (.newDocumentBuilder dom-factory)]
                       (if (contains? opts :error-handler)
                         (.setErrorHandler it (:error-handler opts)))
-                      it)
-        rdr         (ByteArrayInputStream. bytes)]
-    (.parse builder rdr)))
-
-(defn- input-stream->dom [istr & [opts]]
-  (let [dom-factory (doto (DocumentBuilderFactory/newInstance)
-                      (.setNamespaceAware *namespace-aware*))
-        builder     (.newDocumentBuilder dom-factory)]
+                      it)]
     (.parse builder istr)))
+
+(defn- xml-bytes->dom [bytes & [opts]]
+  (input-stream->dom (ByteArrayInputStream. bytes) opts))
 
 (defmulti  xml->doc (fn [thing & [opts]] (class thing)))
 (defmethod xml->doc String               [thing & [opts]] (xml-bytes->dom (.getBytes thing *default-encoding*)))
@@ -98,10 +94,18 @@
   (keyword (.getNodeName node)))
 
 (defn- node->map [#^Node node]
-  {:node node
-   :tag   (node-name node)
-   :attrs (attrs node)
-   :text  (text node)})
+  (let [lazy-children (fn [n] (delay
+                               (map node->map
+                                    (node-list->seq (.getChildNodes n)))))
+        m  {:node node
+            :tag   (node-name node)
+            :attrs (attrs node)
+            :text  (text node)}
+        m   (if (.hasChildNodes node)
+              (assoc m :children (lazy-children node))
+              m)
+        ]
+    m))
 
 (defmulti xp:compile class)
 
