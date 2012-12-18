@@ -156,7 +156,7 @@
 
 (defn $x:tag? [xp xml]
   (let [res ($x:tag* xp xml)]
-    (if (> (count res) 1)
+    (if (next res)
       (throwf "Error, more than 1 result (%d) from xml(%s) for xpath(%s)"
               (count res)
               (summarize xml 10)
@@ -186,7 +186,7 @@
 
 (defn $x:text? [xp xml]
   (let [res ($x:text* xp xml)]
-    (if (> (count res) 1)
+    (if (next res)
       (throwf "Error, more than 1 result (%d) from xml(%s) for xpath(%s)"
               (count res)
               (summarize xml 10)
@@ -216,7 +216,7 @@
 
 (defn $x:attrs? [xp xml]
   (let [res (map attrs (map :node ($x xp xml)))]
-    (if (> (count res) 1)
+    (if (next res)
       (throwf "Error, more than 1 result (%d) from xml(%s) for xpath(%s)"
               (count res)
               (summarize xml 10)
@@ -246,7 +246,7 @@
 
 (defn $x:node? [xp xml]
   (let [res ($x:node* xp xml)]
-    (if (> (count res) 1)
+    (if (next res)
       (throwf "Error, more than 1 result (%d) from xml(%s) for xpath(%s)"
               (count res)
               (summarize xml 10)
