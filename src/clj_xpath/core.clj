@@ -36,14 +36,13 @@
 
 (defn- input-stream->dom [istr & [opts]]
   (let [opts        (or opts {})
-        dom-factory (let [it (DocumentBuilderFactory/newInstance)]
-                      (.setNamespaceAware it *namespace-aware*)
-                      (.setValidating it (opts :validation *validation*))
-                      it)
-        builder     (let [it (.newDocumentBuilder dom-factory)]
-                      (if (contains? opts :error-handler)
-                        (.setErrorHandler it (:error-handler opts)))
-                      it)]
+        dom-factory (doto (DocumentBuilderFactory/newInstance)
+                      (.setNamespaceAware *namespace-aware*)
+                      (.setValidating (:validation opts *validation*)))
+        builder     (.newDocumentBuilder dom-factory)
+        error-h     (:error-handler opts)]
+    (when error-h
+      (.setErrorHandler builder error-h))
     (.parse builder istr)))
 
 (defn- xml-bytes->dom [bytes & [opts]]
