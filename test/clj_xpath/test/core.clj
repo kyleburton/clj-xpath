@@ -119,12 +119,12 @@
   (let [dom (xml->doc labels-xml)
         root (first ($x "/labels" dom))
         children @(:children root)]
-    (is (= "/labels[1]"           (abs-path root dom)))
-    (is (= "/labels[1]/text()[1]" (abs-path (first children) dom)))
-    (is (= "/labels[1]/label[1]"  (abs-path (second children) dom)))
-    (is (= "/labels[1]/text()[2]" (abs-path (nth children 2) dom)))
-    (is (= "/labels[1]/label[2]"  (abs-path (nth children 3) dom)))
-    (is (= "/labels[1]/text()[3]" (abs-path (nth children 4) dom)))))
+    (is (= "/labels[1]"           (abs-path root)))
+    (is (= "/labels[1]/text()[1]" (abs-path (first children))))
+    (is (= "/labels[1]/label[1]"  (abs-path (second children))))
+    (is (= "/labels[1]/text()[2]" (abs-path (nth children 2))))
+    (is (= "/labels[1]/label[2]"  (abs-path (nth children 3))))
+    (is (= "/labels[1]/text()[3]" (abs-path (nth children 4))))))
 
 (comment
 
