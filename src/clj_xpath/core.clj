@@ -411,3 +411,61 @@
 
 (defmacro with-namespace-context [context-map & body]
   `(with-namespace-context* ~context-map (fn [] ~@body)))
+
+(defmulti abs-path* (fn [node dom] (.getNodeType node)))
+
+(defn- walk-back [node dom tail]
+  (if-let [anc (.getParentNode node)]
+    (str (abs-path* anc dom) "/" tail)
+    tail))
+
+(defmethod abs-path* Node/ELEMENT_NODE [node dom]
+  (let [name (.getTagName node)
+        posn (count (->> node
+                         (iterate #(.getPreviousSibling %))
+                         (take-while boolean)
+                         (filter #(and (= Node/ELEMENT_NODE (.getNodeType %)) (= name (.getTagName %))))))
+        step (str name "[" posn "]")]
+    (walk-back node dom step)))
+
+(defmethod abs-path* Node/ATTRIBUTE_NODE [node dom]
+  (throw (ex-info "Not implemented yet.")))
+
+(defn- node-type->xpath-function [nt]
+  ({Node/TEXT_NODE                   "text"
+    Node/COMMENT_NODE                "comment"
+    Node/PROCESSING_INSTRUCTION_NODE "processing-instruction"} nt))
+
+(defmethod abs-path* :default [node dom]
+  (let [nt   (.getNodeType node)
+        posn (count (->> node
+                         (iterate #(.getPreviousSibling %))
+                         (take-while boolean)
+                         (filter #(and % (= nt (.getNodeType %))))))
+        step (str (node-type->xpath-function nt) "()[" posn "]")]
+    (walk-back node dom step)))
+
+(defmethod abs-path* Node/DOCUMENT_NODE [node dom] "")
+
+  ;; elif node.nodeType == Node.ATTRIBUTE_NODE:
+  ;;       step = u'@%s' % (node.nodeName)
+  ;;       ancestor = node.ownerElement
+  ;; elif node.nodeType in OTHER_NODES:
+  ;;       #Text nodes, comments and PIs
+  ;;       count = 1
+  ;;       #Count previous siblings of the same node type
+  ;;       previous = node.previousSibling
+  ;;       while previous:
+  ;;           if previous.nodeType == node.nodeType: count += 1
+  ;;           previous = previous.previousSibling
+  ;;       test_func = OTHER_NODES[node.nodeType]
+  ;;       step = u'%s()[%i]' % (test_func, count)
+  ;;       ancestor = node.parentNode
+
+(defn abs-path
+  "Determine an absolute xpath expression that locates this node inside the enclosing document.
+   Based on code developed by Florian Bösch on XML-SIG (http://mail.python.org/pipermail/xml-sig/2004-August/010423.html),
+   as enhanced and published by Uche Ogbuji (http://www.xml.com/pub/a/2004/11/24/py-xml.html)"
+  [node dom]
+  (when (:node node)
+    (abs-path* (:node node) dom)))
