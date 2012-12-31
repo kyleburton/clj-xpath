@@ -214,4 +214,4 @@ h2. Authors
 
 * Kyle Burton <kyle.burton@gmail.com>
 * Trotter Cashion <cashion@gmail.com>
-
+* Michael Nygard <mtnygard@gmail.com>
