@@ -64,6 +64,10 @@ h3. <code>($x:tag   xpexpr doc) => :tag-name</code>
 
 These functions return the requested property from the single result of executing the xpath expression.  If the xpath expression identifies less than 1 result or more than 1 result in the given document, an exception is raised.
 
+h3. @(abs-path node) => xpath-expression (String)@
+
+Given a node extracted from a document (by any of the @$x@ functions), returns an XPath expression (a String) that will locate the node in the document.  This may not be the xpath that was used to extract the node, but will uniquely identify the node in the document.
+
 h2. Precompliation of XPath Expressions
 
 h3. @($x:compile xpexpr) => javax.xml.xpath.XPathExpression@
