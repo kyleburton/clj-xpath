@@ -36,14 +36,13 @@
 
 (defn- input-stream->dom [istr & [opts]]
   (let [opts        (or opts {})
-        dom-factory (let [it (DocumentBuilderFactory/newInstance)]
-                      (.setNamespaceAware it *namespace-aware*)
-                      (.setValidating it (opts :validation *validation*))
-                      it)
-        builder     (let [it (.newDocumentBuilder dom-factory)]
-                      (if (contains? opts :error-handler)
-                        (.setErrorHandler it (:error-handler opts)))
-                      it)]
+        dom-factory (doto (DocumentBuilderFactory/newInstance)
+                      (.setNamespaceAware *namespace-aware*)
+                      (.setValidating (:validation opts *validation*)))
+        builder     (.newDocumentBuilder dom-factory)
+        error-h     (:error-handler opts)]
+    (when error-h
+      (.setErrorHandler builder error-h))
     (.parse builder istr)))
 
 (defn- xml-bytes->dom [bytes & [opts]]
@@ -412,3 +411,45 @@
 
 (defmacro with-namespace-context [context-map & body]
   `(with-namespace-context* ~context-map (fn [] ~@body)))
+
+(defmulti abs-path* (fn [node] (.getNodeType node)))
+
+(defn- walk-back [node tail]
+  (if-let [anc (.getParentNode node)]
+    (str (abs-path* anc) "/" tail)
+    tail))
+
+(defmethod abs-path* Node/ELEMENT_NODE [node]
+  (let [name (.getTagName node)
+        posn (count (->> node
+                         (iterate #(.getPreviousSibling %))
+                         (take-while boolean)
+                         (filter #(and (= Node/ELEMENT_NODE (.getNodeType %)) (= name (.getTagName %))))))
+        step (str name "[" posn "]")]
+    (walk-back node step)))
+
+(defmethod abs-path* Node/ATTRIBUTE_NODE [node]
+  (throw (ex-info "Not implemented yet.")))
+
+(defn- node-type->xpath-function [nt]
+  ({Node/TEXT_NODE                   "text"
+    Node/COMMENT_NODE                "comment"
+    Node/PROCESSING_INSTRUCTION_NODE "processing-instruction"} nt))
+
+(defmethod abs-path* :default [node]
+  (let [nt   (.getNodeType node)
+        posn (count (->> node
+                         (iterate #(.getPreviousSibling %))
+                         (take-while boolean)
+                         (filter #(and % (= nt (.getNodeType %))))))
+        step (str (node-type->xpath-function nt) "()[" posn "]")]
+    (walk-back node step)))
+
+(defmethod abs-path* Node/DOCUMENT_NODE [node] "")
+
+(defn abs-path
+  "Determine an absolute xpath expression that locates this node inside the enclosing document.
+   Based on code developed by Florian Bösch on XML-SIG (http://mail.python.org/pipermail/xml-sig/2004-August/010423.html),
+   as enhanced and published by Uche Ogbuji (http://www.xml.com/pub/a/2004/11/24/py-xml.html)"
+  [node]
+  (when (:node node) (abs-path* (:node node))))

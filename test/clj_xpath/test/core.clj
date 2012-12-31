@@ -1,7 +1,7 @@
 (ns clj-xpath.test.core
   (:use [clojure.test]
         [clj-xpath.core :as xp
-         :only [$x $x:tag $x:text $x:attrs $x:node $x:tag? $x:text? $x:tag+ $x:text+ xp:compile tag xml->doc *xpath-compiler* *namespace-aware* nscontext xmlnsmap-from-root-node with-namespace-context]]))
+         :only [$x $x:tag $x:text $x:attrs $x:node $x:tag? $x:text? $x:tag+ $x:text+ xp:compile tag xml->doc *xpath-compiler* *namespace-aware* nscontext xmlnsmap-from-root-node with-namespace-context abs-path]]))
 
 (def xml-fixtures {:simple (tag :top-tag "this is a foo")
                    :attrs  (tag [:top-tag :name "bobby tables"]
@@ -91,6 +91,40 @@
   (is (nil? (:children ($x "/top-tag/*" (:simple xml-fixtures)))))
   (is (not  (realized? (:children (first ($x "/top-tag/*" (:nested xml-fixtures)))))))
   (is (=    "inner tag body" (:text (first (deref (:children (first ($x "/top-tag/*" (:nested xml-fixtures))))))))))
+
+(def labels-xml "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>
+<labels>
+  <label added=\"2003-06-20\">
+    <quote>
+      <emph>Midwinter Spring</emph> is its own season&#8230;
+    </quote>
+    <name>Thomas Eliot</name>
+    <address>
+      <street>3 Prufrock Lane</street>
+      <city>Stamford</city>
+      <state>CT</state>
+    </address>
+  </label>
+  <label added=\"2003-06-10\">
+    <name>Ezra Pound</name>
+    <address>
+      <street>45 Usura Place</street>
+      <city>Hailey</city>
+      <state>ID</state>
+    </address>
+  </label>
+</labels>")
+
+(deftest test-absolute-paths
+  (let [dom (xml->doc labels-xml)
+        root (first ($x "/labels" dom))
+        children @(:children root)]
+    (is (= "/labels[1]"           (abs-path root)))
+    (is (= "/labels[1]/text()[1]" (abs-path (first children))))
+    (is (= "/labels[1]/label[1]"  (abs-path (second children))))
+    (is (= "/labels[1]/text()[2]" (abs-path (nth children 2))))
+    (is (= "/labels[1]/label[2]"  (abs-path (nth children 3))))
+    (is (= "/labels[1]/text()[3]" (abs-path (nth children 4))))))
 
 (comment
 
