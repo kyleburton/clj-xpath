@@ -300,7 +300,6 @@
 
 
 (defn xmlnsmap-from-node [node]
-  (def *n* node)
   (let [attributes (attrs node)]
    (reduce
     (fn xyz [m k]
