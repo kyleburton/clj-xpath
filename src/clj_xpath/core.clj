@@ -94,8 +94,8 @@
 
 (defn- node->map [#^Node node]
   (let [lazy-children (fn [n] (delay
-                               (map node->map
-                                    (node-list->seq (.getChildNodes n)))))
+                                (map node->map
+                                     (node-list->seq (.getChildNodes n)))))
         m  {:node node
             :tag   (node-name node)
             :attrs (attrs node)
@@ -403,6 +403,17 @@
   )
 
 
+(defn with-namespace-awareness* [f]
+  (binding [*namespace-aware* true
+            *xpath-compiler*  (.newXPath *xpath-factory*)]
+    (f)))
+
+(defmacro with-namespace-awareness [& body]
+  `(with-namespace-awareness* (fn [] ~@body)))
+
+(defn set-namespace-context! [context-map]
+  (.setNamespaceContext *xpath-compiler* (nscontext context-map)))
+
 (defn with-namespace-context* [context-map f]
   (binding [*namespace-aware* true
             *xpath-compiler*  (.newXPath *xpath-factory*)]
@@ -449,7 +460,20 @@
 
 (defn abs-path
   "Determine an absolute xpath expression that locates this node inside the enclosing document.
-   Based on code developed by Florian Bösch on XML-SIG (http://mail.python.org/pipermail/xml-sig/2004-August/010423.html),
+   Based on code developed by Florian Bösch on XML-SIG (http://mail.python.org/pipermail/xml-sig/2004-August/010423.html)
    as enhanced and published by Uche Ogbuji (http://www.xml.com/pub/a/2004/11/24/py-xml.html)"
   [node]
   (when (:node node) (abs-path* (:node node))))
+
+(defn node->xml
+  "Convert a Node to a String of XML."
+  [^org.w3c.dom.Node node]
+  (let [dw         (java.io.StringWriter.)
+        serializer (..
+                    (javax.xml.transform.TransformerFactory/newInstance)
+                    newTransformer)]
+    (.transform
+     serializer
+     (javax.xml.transform.dom.DOMSource. node)
+     (javax.xml.transform.stream.StreamResult. dw))
+    (str dw)))
