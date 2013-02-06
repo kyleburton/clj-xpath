@@ -299,20 +299,23 @@
   (format "<%s>%s</%s>" (format-tag tag :with-attrs) (apply str body) (format-tag tag)))
 
 
+(defn xmlnsmap-from-node [node]
+  (def *n* node)
+  (let [attributes (attrs node)]
+   (reduce
+    (fn xyz [m k]
+      (if (.startsWith (name k) "xmlns")
+        (let [val (get attributes k)
+              k    (.replaceAll (name k) "^xmlns:?" "")]
+          (-> m
+              (assoc k   val)
+              (assoc val k)))
+        m))
+    {}
+    (keys attributes))))
 
 (defn xmlnsmap-from-root-node [xml]
-  (let [attrs (:attrs (first ($x "//*" xml)))]
-    (reduce
-     (fn xyz [m k]
-       (if (.startsWith (name k) "xmlns:")
-         (let [val (get attrs k)
-               k    (.replace (name k) "xmlns:" "")]
-           (-> m
-               (assoc k   val)
-               (assoc val k)))
-         m))
-     {}
-     (keys attrs))))
+  (xmlnsmap-from-node (first ($x:node* "//*" xml))))
 
 (defn nscontext [prefix-map]
   (let [uri-map (reduce (fn unmap [m k]
