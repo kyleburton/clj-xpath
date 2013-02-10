@@ -126,7 +126,28 @@
     (is (= "/labels[1]/label[2]"  (abs-path (nth children 3))))
     (is (= "/labels[1]/text()[3]" (abs-path (nth children 4))))))
 
+;; The document soap1.xml uses 3 namepsaces.  The 3rd is implicit / blank in the SOAP Body element.
+(deftest test-with-blank-ns
+  (let [xml (slurp "fixtures/soap1.xml")]
+    (xp/with-namespace-awareness
+      (let [doc (xp/xml->doc xml)]
+        (xp/set-namespace-context! (xp/xmlnsmap-from-document doc))
+        (is (= :OTA_HotelAvailRQ (xp/$x:tag "/soapenv:Envelope/soapenv:Body/:OTA_HotelAvailRQ" doc)))))))
+
+#_(deftest test-abs-path-with-blank-namespace
+ (let [xml (slurp "fixtures/soap1.xml")]
+   (xp/with-namespace-awareness
+     (let [doc (xp/xml->doc xml)]
+       (xp/set-namespace-context! (xp/xmlnsmap-from-document doc))
+       (is (= "/soapenv:Envelope[1]/soapenv:Body[1]/:OTA_HotelAvailRQ[1]"
+              (xp/abs-path (first (xp/$x "/soapenv:Envelope[1]/soapenv:Body[1]/:OTA_HotelAvailRQ[1]" doc)))))))))
+
+
 (comment
+
+  (test-with-blank-ns)
+
+
 
   (with-namespace-context {"atom" "http://www.w3.org/2005/Atom"}
     ($x:text "//atom:title" (:namespaces xml-fixtures)))
@@ -136,4 +157,52 @@
 
   (run-tests)
 
+  (let [doc (slurp "sabre.xml")
+        xp (str "/soapenv:Envelope/soapenv:Body/:OTA_HotelAvailRQ/"
+                ":AvailRequestSegments/:AvailRequestSegment/"
+                ":HotelSearchCriteria/:Criterion/:HotelRef")
+        ns-map {"soapenv" "http://schemas.xmlsoap.org/soap/envelope/"
+                "head"    "http://htng.org/1.1/Header/"
+                ""        "http://www.opentravel.org/OTA/2003/05"}]
+    (xp/with-namespace-context ns-map
+      (xp/$x:attrs* xp doc :HotelCode)))
+  ;; => ("11206")
+
+  (let [doc (slurp "sabre.xml")
+        ns-map {"soapenv" "http://schemas.xmlsoap.org/soap/envelope/"
+                "head"    "http://htng.org/1.1/Header/"}]
+    (xp/with-namespace-context ns-map
+      (let [node (xp/$x:node "/soapenv:Envelope/soapenv:Body/*" doc)]
+        #_(xp/set-namespace-context! {"" "http://www.opentravel.org/OTA/2003/05"})
+        (xp/xmlnsmap-from-node node)
+        #_(xp/$x:tag "./:OTA_HotelAvailRQ" node))))
+
+  (defn get-soap-body [xml]
+    (xp/with-namespace-awareness
+      (let [doc (xp/xml->doc xml)]
+        (xp/set-namespace-context! (xp/xmlnsmap-from-root-node doc))
+        (xp/node->xml (xp/$x:node "/soapenv:Envelope/soapenv:Body/*" doc)))))
+
+  (let [orig-xml (slurp "sabre.xml")
+        body-xml (xp/xml->doc (get-soap-body orig-xml))]
+    (xp/$x:attrs* "/OTA_HotelAvailRQ/AvailRequestSegments/AvailRequestSegment/HotelSearchCriteria/Criterion/HotelRef" body-xml :HotelCode))
+  ("11206")
+
+
+
+
+
+
   )
+
+
+
+
+
+
+
+
+
+
+
+

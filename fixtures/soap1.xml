@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:head="http://htng.org/1.1/Header/">
+  <soapenv:Header>
+    <head:HTNGHeader>
+      <head:From>
+        <head:Credential>
+          <head:userName>non-username</head:userName>
+          <head:password>non-password</head:password>
+        </head:Credential>
+      </head:From>
+    </head:HTNGHeader>
+  </soapenv:Header>
+  <soapenv:Body>
+    <OTA_HotelAvailRQ 
+      xmlns="http://www.opentravel.org/OTA/2003/05" 
+      MaxResponses="0" 
+      PrimaryLangID="en" 
+      ExactMatchOnly="false" 
+      BestOnly="false" 
+      SummaryOnly="false" 
+      HotelStayOnly="false" 
+      RequestedCurrency="USD">
+      <POS>
+        <Source>
+          <RequestorId ID="123456" ID_Context="Vygnxs">
+            <CompanyName Code="something"/>
+          </RequestorId>
+        </Source>
+      </POS>
+      <AvailRequestSegments>
+        <AvailRequestSegment>
+          <HotelSearchCriteria>
+            <Criterion>
+              <HotelRef HotelCode="11206" HotelCodeContext="Vyger"/>
+              <StayDateRange Start="2012-03-20" End="2012-03-22"/>
+              <RatePlanCandidates>
+                <RatePlanCandidate RatePlanType="13.RPT"/>
+              </RatePlanCandidates>
+              <RoomStayCandidates>
+                <RoomStayCandidate Quantity="2">
+                  <GuestCounts>
+                    <GuestCount Count="2"/>
+                  </GuestCounts>
+                </RoomStayCandidate>
+              </RoomStayCandidates>
+            </Criterion>
+          </HotelSearchCriteria>
+        </AvailRequestSegment>
+      </AvailRequestSegments>
+    </OTA_HotelAvailRQ>
+  </soapenv:Body>
+</soapenv:Envelope>
