@@ -10,6 +10,25 @@ h3. Overview
 
 h3. "API Documentation":documentation/
 
+h3. Project Dependencies
+
+For Clojure, add the following to your @project.clj@ file:
+
+{% highlight clojure %}
+ [com.github.kyleburton/clj-xpath "1.4.1"]
+{% endhighlight %}
+
+For maven, add the following dependency to your @pom.xml@:
+
+{% highlight xml %}
+<dependency>
+  <groupId>com.github.kyleburton</groupId>
+  <artifactId>clj-xpath</artifactId>
+  <version>1.4.1</version>
+</dependency>
+{% endhighlight %}
+
+
 h3. Example
 
 {% highlight clojure %}
