@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Transition.js - Detangled in browser Web Testing
+title: clj-xpath - Simplified XPath for Clojure
 show_downloads: true
 ---
 
