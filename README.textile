@@ -9,16 +9,16 @@ h2. Use
 For "Leiningen":https://github.com/technomancy/leiningen add the following dependency to your project.clj file:
 
 <pre>
-    [org.clojars.kyleburton/clj-xpath "1.4.0"]
+    [com.github.kyleburton/clj-xpath "1.4.1"]
 </pre>
 
 For Maven: add the following in your pom.xml file in the `dependencies` section:
 
 <pre>
     <dependency>
-      <groupId>org.clojars.kyleburton</groupId>
+      <groupId>com.github.kyleburton</groupId>
       <artifactId>clj-xpath</artifactId>
-      <version>1.4.0</version>
+      <version>1.4.1</version>
     </dependency>
 </pre>
 
@@ -204,6 +204,10 @@ These two examples assume the following XML document:
 </pre></code>
 
 h2. Changes
+
+h5. Version 1.4.1 : Sat Feb 16 12:15:26 EST 2013
+
+Changed project group from org.clojars.kyleburton to com.github.kyleburton.
 
 h5. Version 1.4.0 : Tue Dec 18 15:10:19 EST 2012
 
