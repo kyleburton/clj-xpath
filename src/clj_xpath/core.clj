@@ -244,9 +244,11 @@ See xml->doc, and xp:compile."
     (first res)))
 
 (defn $x:attrs*
-  "Perform an xpath search, resulting in zero or more nodes.  Return only each the node's attrs."
-  [xp xml attr-name]
-  (map (if (keyword? attr-name) attr-name (keyword attr-name)) (map attrs (map :node ($x xp xml)))))
+  "Perform an xpath search, resulting in zero or more nodes.  When an attr-name is passed, return only each the node's attrs."
+  ([xp xml]
+     (map attrs (map :node ($x xp xml))))
+  ([xp xml attr-name]
+     (map (if (keyword? attr-name) attr-name (keyword attr-name)) (map attrs (map :node ($x xp xml))))))
 
 (defn $x:attrs?
   "Perform an xpath search, resulting in zero or one node.  Return only the node's attrs."

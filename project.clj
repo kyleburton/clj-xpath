@@ -9,7 +9,8 @@
   :repositories         {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"}
   :local-repo-classpath true
   :profiles             {:dev {:dependencies [[swank-clojure "1.4.3"]
-                                              [midje "1.4.0"]]}
+                                              [midje "1.4.0"]
+                                              [org.clojure/clojure "1.5.1"]]}
                          ;; NB: the use of ex-info prevents 1.3 from being supported
                          ;; :1.3 {:dependencies [[org.clojure/clojure "1.3.0"]]}
                          :1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}

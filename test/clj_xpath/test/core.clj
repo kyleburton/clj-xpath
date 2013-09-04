@@ -1,7 +1,7 @@
 (ns clj-xpath.test.core
   (:use [clojure.test]
         [clj-xpath.core :as xp
-         :only [$x $x:tag $x:text $x:attrs $x:node $x:tag? $x:text? $x:tag+ $x:text+ xp:compile tag xml->doc *xpath-compiler* *namespace-aware* nscontext xmlnsmap-from-root-node with-namespace-context abs-path]]))
+         :only [$x $x:tag $x:text $x:attrs $x:attrs* $x:node $x:tag? $x:text? $x:tag+ $x:text+ xp:compile tag xml->doc *xpath-compiler* *namespace-aware* nscontext xmlnsmap-from-root-node with-namespace-context abs-path]]))
 
 (def xml-fixtures {:simple (tag :top-tag "this is a foo")
                    :attrs  (tag [:top-tag :name "bobby tables"]
@@ -30,6 +30,12 @@
   (is (= "bobby tables"
          (:name
           ($x:attrs "/*" (:attrs xml-fixtures))))))
+
+(deftest test-$x-attrs*
+  (is (= [{:name "bobby tables"}]
+         ($x:attrs* "/*" (:attrs xml-fixtures))))
+  (is (= ["bobby tables"]
+         ($x:attrs* "/*" (:attrs xml-fixtures) :name))))
 
 (deftest test-$x-node
   (is (= "top-tag"
@@ -141,6 +147,7 @@
        (xp/set-namespace-context! (xp/xmlnsmap-from-document doc))
        (is (= "/soapenv:Envelope[1]/soapenv:Body[1]/:OTA_HotelAvailRQ[1]"
               (xp/abs-path (first (xp/$x "/soapenv:Envelope[1]/soapenv:Body[1]/:OTA_HotelAvailRQ[1]" doc)))))))))
+
 
 
 (comment
