@@ -130,6 +130,7 @@ See: format"
   class)
 
 (def ^:dynamic *xpath-factory* (org.apache.xpath.jaxp.XPathFactoryImpl.))
+
 (def ^:dynamic *xpath-compiler* (.newXPath *xpath-factory*))
 
 (defmethod xp:compile String          [xpexpr] (.compile *xpath-compiler* xpexpr))
