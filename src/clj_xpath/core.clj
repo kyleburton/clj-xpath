@@ -12,8 +12,8 @@
    [javax.xml.xpath             XPathFactory XPathConstants XPathExpression])
   (:gen-class))
 
-(def ^:dynamic *namespace-aware*  false)
-(def ^:dynamic *default-encoding* "UTF-8")
+(def ^{:dynamic true} *namespace-aware*  false)
+(def ^{:dynamic true :tag String} *default-encoding* "UTF-8")
 
 (defn throwf
   "Helper for throwing exceptions using a format string.  Arguments are
@@ -23,31 +23,57 @@
 
 See: format"
   [& args]
-  (throw (RuntimeException. (apply format args))))
+  (throw (RuntimeException. ^String (apply format args))))
 
 (defn logf
   "Debugging helper: Prints to System/err using format."
   [fmt & args]
   (.println System/err (apply format fmt args)))
 
-(defn node-list->seq
+(defn dom-node-map->seq
   "Convert a org.w3c.dom.NodeList into a clojure sequence."
-  [node-list]
+  [^org.w3c.dom.NamedNodeMap node-list]
   (loop [length (.getLength node-list)
          idx    0
          res    []]
-                                        ;(logf "node-list: idx:%s node-list=%s length=%s" idx node-list length)
     (if (>= idx length)
       (reverse res)
       (recur length
              (inc idx)
              (cons (.item node-list idx) res)))))
 
-(def ^:dynamic *validation* false)
+
+(defn dom-node-list->seq
+  "Convert a org.w3c.dom.NodeList into a clojure sequence."
+  [^org.w3c.dom.NodeList node-list]
+  (loop [length (.getLength node-list)
+         idx    0
+         res    []]
+    (if (>= idx length)
+      (reverse res)
+      (recur length
+             (inc idx)
+             (cons (.item node-list idx) res)))))
+
+(defn node-list->seq
+  "Convert a org.w3c.dom.NodeList into a clojure sequence."
+  [thing]
+  (cond
+    (isa? (class thing) org.w3c.dom.NodeList)
+    (dom-node-list->seq thing)
+
+    (isa? (class thing) org.w3c.dom.NamedNodeMap)
+    (dom-node-map->seq thing)
+
+    :unrecognized
+    (throw (RuntimeException. "Unknown node list object type=%s" (class thing)))))
+
+
+(def ^{:dynamic true} *validation* false)
 
 (defn- input-stream->dom
   "Convert an input stream into a DOM."
-  [istr & [opts]]
+  [^java.io.InputStream istr & [opts]]
   (let [opts        (or opts {})
         dom-factory (doto (DocumentBuilderFactory/newInstance)
                       (.setNamespaceAware *namespace-aware*)
@@ -73,20 +99,19 @@ See: format"
     org.w3c.dom.Node
 "
   (fn [thing & [opts]] (class thing)))
-(defmethod xml->doc String               [thing & [opts]] (xml-bytes->dom (.getBytes thing *default-encoding*)))
+(defmethod xml->doc String               [thing & [opts]] (xml-bytes->dom (.getBytes ^String thing ^String *default-encoding*)))
 (defmethod xml->doc (Class/forName "[B") [thing & [opts]] (xml-bytes->dom thing))
 (defmethod xml->doc InputStream          [thing & [opts]] (input-stream->dom thing))
 (defmethod xml->doc org.w3c.dom.Document [thing & [opts]] thing)
-(defmethod xml->doc org.w3c.dom.Node     [thing & [opts]] thing)
+(defmethod xml->doc Node                 [thing & [opts]] thing)
 (defmethod xml->doc :default             [thing & [opts]]
   (throwf "Error, don't know how to build a doc out of '%s' of class %s" thing (class thing)))
 
 (defn attrs
   "Extract the attributes from the node."
-  [nodeattrs]
-                                        ;(logf "attrs: nodeattrs=%s attrs=%s" nodeattrs (.getAttributes nodeattrs))
+  [^Node nodeattrs]
   (if-let [the-attrs (.getAttributes nodeattrs)]
-    (loop [[node & nodes] (node-list->seq (.getAttributes nodeattrs))
+    (loop [[^Node node & nodes] (node-list->seq (.getAttributes nodeattrs))
            res {}]
       (if node
         (recur nodes (assoc res (keyword (.getNodeName node)) (.getTextContent node)))
@@ -112,7 +137,7 @@ See: format"
     :children  a lazy sequence of the node's children.
 "
   [#^Node node]
-  (let [lazy-children (fn [n] (delay
+  (let [lazy-children (fn [#^Node n] (delay
                                 (map node->map
                                      (node-list->seq (.getChildNodes n)))))
         m  {:node node
@@ -129,9 +154,11 @@ See: format"
   "Compile an XPath expression.  If the argument is already a compiled XPath expression, it is returned as-is."
   class)
 
-(def ^:dynamic *xpath-factory* (org.apache.xpath.jaxp.XPathFactoryImpl.))
+(def ^String foo "stuff")
 
-(def ^:dynamic *xpath-compiler* (.newXPath *xpath-factory*))
+(def ^{:dynamic true :tag javax.xml.xpath.XPathFactory} *xpath-factory* (org.apache.xpath.jaxp.XPathFactoryImpl.))
+
+(def ^{:dynamic true :tag javax.xml.xpath.XPath} *xpath-compiler* (.newXPath *xpath-factory*))
 
 (defmethod xp:compile String          [xpexpr] (.compile *xpath-compiler* xpexpr))
 (defmethod xp:compile XPathExpression [xpexpr] xpexpr)
@@ -143,7 +170,7 @@ See: format"
 See xml->doc, and xp:compile."
   (fn [xp xml-thing] (class xml-thing)))
 
-(defmethod $x String [xp xml]
+(defmethod $x String [xp ^String xml]
   ($x xp (xml->doc (.getBytes xml *default-encoding*))))
 
 (defmethod $x (Class/forName "[B") [xp bytes]
@@ -155,10 +182,10 @@ See xml->doc, and xp:compile."
 (defmethod $x java.util.Map                   [xp xml] ($x xp (:node xml)))
 
 ;; assume a Document (or api compatible)
-(defmethod $x :default [xp-expression doc]
+(defmethod $x :default [xp-expression ^Document doc]
   (map node->map
        (node-list->seq
-        (.evaluate (xp:compile xp-expression) doc XPathConstants/NODESET))))
+        (.evaluate ^javax.xml.xpath.XPathExpression (xp:compile xp-expression) doc XPathConstants/NODESET))))
 
 (defn summarize
   "Summarize a string to a specific maximu length (truncating it and adding ... if it is longer than len)."
@@ -381,7 +408,7 @@ See xml->doc, and xp:compile."
 (defn xmlnsmap-from-document
   "Extract a map of XML Namespace prefix to URI (and URI to prefix) recursively from the entire document."
   [xml]
-  (let [node   (xml->doc xml)]
+  (let [^Node node   (xml->doc xml)]
     (reduce
      (fn merge-nsmaps [m node]
        (merge
@@ -442,38 +469,42 @@ See xml->doc, and xp:compile."
 
 (defmulti abs-path*
   "Determine the absolute path to node."
-  (fn [node] (.getNodeType node)))
+  (fn [^Node node] (.getNodeType node)))
 
 (defn- walk-back
   "Walk up the document to the root node, tracing the path all the way back up."
-  [node tail]
+  [^Node node tail]
   (if-let [anc (.getParentNode node)]
     (str (abs-path* anc) "/" tail)
     tail))
 
-(defmethod abs-path* Node/ELEMENT_NODE [node]
+(defmethod abs-path* Node/ELEMENT_NODE [^org.w3c.dom.Element node]
   (let [name (.getTagName node)
         posn (count (->> node
-                         (iterate #(.getPreviousSibling %))
+                         (iterate #(.getPreviousSibling ^org.w3c.dom.Element %))
                          (take-while boolean)
-                         (filter #(and (= Node/ELEMENT_NODE (.getNodeType %)) (= name (.getTagName %))))))
+                         ;; (filter #(and (= Node/ELEMENT_NODE (.getNodeType ^Node %)) (= name (.getTagName ^Node %))))
+                         (filter (fn [^Node node]
+                                   (and (= Node/ELEMENT_NODE (.getNodeType node))
+                                        (= name (.getTagName ^org.w3c.dom.Element node)))))
+                         ))
         step (str name "[" posn "]")]
     (walk-back node step)))
 
 (defmethod abs-path* Node/ATTRIBUTE_NODE [node]
-  (throw (ex-info "Not implemented yet.")))
+  (throw (RuntimeException. "Not implemented yet.")))
 
 (defn- node-type->xpath-function [nt]
   ({Node/TEXT_NODE                   "text"
     Node/COMMENT_NODE                "comment"
     Node/PROCESSING_INSTRUCTION_NODE "processing-instruction"} nt))
 
-(defmethod abs-path* :default [node]
+(defmethod abs-path* :default [^Node node]
   (let [nt   (.getNodeType node)
         posn (count (->> node
-                         (iterate #(.getPreviousSibling %))
+                         (iterate #(.getPreviousSibling ^Node %))
                          (take-while boolean)
-                         (filter #(and % (= nt (.getNodeType %))))))
+                         (filter #(and % (= nt (.getNodeType ^Node %))))))
         step (str (node-type->xpath-function nt) "()[" posn "]")]
     (walk-back node step)))
 
@@ -488,7 +519,7 @@ See xml->doc, and xp:compile."
 
 (defn node->xml
   "Convert a Node to a String of XML."
-  [^org.w3c.dom.Node node]
+  [^Node node]
   (let [dw         (java.io.StringWriter.)
         serializer (..
                     (javax.xml.transform.TransformerFactory/newInstance)

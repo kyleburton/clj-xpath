@@ -13,7 +13,7 @@
 
 (deftest test-xml->doc
   (is (isa? (class (xp/xml->doc (:simple xml-fixtures))) org.w3c.dom.Document))
-  (is (isa? (class (xp/xml->doc (.getBytes (:simple xml-fixtures))))
+  (is (isa? (class (xp/xml->doc (.getBytes ^String (:simple xml-fixtures))))
             org.w3c.dom.Document))
   (is (isa? (class (xp/xml->doc (xp/xml->doc (:simple xml-fixtures))))
             org.w3c.dom.Document)))
@@ -39,7 +39,7 @@
 
 (deftest test-$x-node
   (is (= "top-tag"
-         (.getNodeName ($x:node "/*" (:simple xml-fixtures))))))
+         (.getNodeName ^org.w3c.dom.Node ($x:node "/*" (:simple xml-fixtures))))))
 
 (deftest test-$x-on-result
   (is (= :more-inner
@@ -64,7 +64,7 @@
            ($x:tag expr doc)))))
 
 (deftest should-support-input-stream-as-xml-source
-  (let [istr (java.io.ByteArrayInputStream. (.getBytes (:simple xml-fixtures)))]
+  (let [istr (java.io.ByteArrayInputStream. (.getBytes ^String (:simple xml-fixtures)))]
     (is (= :top-tag
            ($x:tag "/*" istr)))))
 
@@ -93,9 +93,20 @@
       (xmlnsmap-from-root-node (:namespaces xml-fixtures))
     (is (= "BookingCollection" ($x:text "//atom:title" (:namespaces xml-fixtures))))))
 
+;; *clojure-version*
+;; {:major 1, :minor 5, :incremental 1, :qualifier nil}
+(defmacro compile-when-1.3-or-greater [& body]
+  (if (and
+       (>= (:major *clojure-version*) 1)
+       (>= (:minor *clojure-version*) 3))
+    `(do
+       ~@body)
+    nil))
+
 (deftest test-lazy-children
   (is (nil? (:children ($x "/top-tag/*" (:simple xml-fixtures)))))
-  (is (not  (realized? (:children (first ($x "/top-tag/*" (:nested xml-fixtures)))))))
+  (compile-when-1.3-or-greater
+    (is (not  (realized? (:children (first ($x "/top-tag/*" (:nested xml-fixtures))))))))
   (is (=    "inner tag body" (:text (first (deref (:children (first ($x "/top-tag/*" (:nested xml-fixtures))))))))))
 
 (def labels-xml "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>
