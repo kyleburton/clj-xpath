@@ -9,7 +9,7 @@ h2. Use
 For "Leiningen":https://github.com/technomancy/leiningen add the following dependency to your project.clj file:
 
 <pre>
-    [com.github.kyleburton/clj-xpath "1.4.1"]
+    [com.github.kyleburton/clj-xpath "1.4.2"]
 </pre>
 
 For Maven: add the following in your pom.xml file in the `dependencies` section:
@@ -18,7 +18,7 @@ For Maven: add the following in your pom.xml file in the `dependencies` section:
     <dependency>
       <groupId>com.github.kyleburton</groupId>
       <artifactId>clj-xpath</artifactId>
-      <version>1.4.1</version>
+      <version>1.4.2</version>
     </dependency>
 </pre>
 
@@ -204,6 +204,12 @@ These two examples assume the following XML document:
 </pre></code>
 
 h2. Changes
+
+h5. Version 1.4.1 : Sat Sep  7 21:10:16 EDT 2013
+
+* Support leiningen 2
+* create profiles for clojure 1.2 through 1.6
+* resolve reflection warnings: NB: two remain for clojure 1.3
 
 h5. Version 1.4.1 : Sat Feb 16 12:15:26 EST 2013
 
