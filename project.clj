@@ -8,6 +8,7 @@
                          :comments "Same as Clojure"}
   :repositories         {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"}
   :local-repo-classpath true
+  :plugins [[lein-release/lein-release "1.0.4"]]
   :profiles             {:dev {:dependencies [[swank-clojure "1.4.3"]
                                               [midje "1.4.0"]
                                               [org.clojure/clojure "1.5.1"]]}
