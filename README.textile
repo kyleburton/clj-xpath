@@ -9,7 +9,7 @@ h2. Use
 For "Leiningen":https://github.com/technomancy/leiningen add the following dependency to your project.clj file:
 
 <pre>
-    [com.github.kyleburton/clj-xpath "1.4.2"]
+    [com.github.kyleburton/clj-xpath "1.4.3"]
 </pre>
 
 For Maven: add the following in your pom.xml file in the `dependencies` section:
@@ -18,7 +18,7 @@ For Maven: add the following in your pom.xml file in the `dependencies` section:
     <dependency>
       <groupId>com.github.kyleburton</groupId>
       <artifactId>clj-xpath</artifactId>
-      <version>1.4.2</version>
+      <version>1.4.3</version>
     </dependency>
 </pre>
 
