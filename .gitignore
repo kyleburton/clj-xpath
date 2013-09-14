@@ -1,0 +1,5 @@
+.lein-deps-sum
+.lein-failures
+clj-xpath-*.jar
+pom.xml
+target/
