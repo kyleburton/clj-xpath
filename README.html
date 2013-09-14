@@ -1,0 +1,153 @@
+<h1>Overview</h1>
+<p><a href="http://kyleburton.github.com/clj-xpath/site/">clj-xpath</a> is a library that makes it easier to with XPath from Clojure.</p>
+<h2>Use</h2>
+<p>For <a href="https://github.com/technomancy/leiningen">Leiningen</a> add the following dependency to your project.clj file:</p>
+<pre>
+    [com.github.kyleburton/clj-xpath "1.4.3"]
+</pre>
+<p>For Maven: add the following in your pom.xml file in the `dependencies` section:</p>
+<pre>
+    &lt;dependency&gt;
+      &lt;groupId&gt;com.github.kyleburton&lt;/groupId&gt;
+      &lt;artifactId&gt;clj-xpath&lt;/artifactId&gt;
+      &lt;version&gt;1.4.3&lt;/version&gt;
+    &lt;/dependency&gt;
+</pre>
+<h2><a href="http://kyleburton.github.com/clj-xpath/site/">Documentation</a></h2>
+<p>Documentation is available <a href="http://kyleburton.github.com/clj-xpath/site/">here</a></p>
+<h2>Description</h2>
+<p>Simplified XPath Library for Clojure.  <span class="caps">XML</span> Parsers and an XPath implementation now comes with Java 6, though using the api directly can be verbose and confusing.  This library provides a thin layer around basic parsing and XPath interaction for common use cases.  I have personally found the ability to interactively tweak my xpath expressions to be a great productivity boost &#8211; even using this library only for that has helped me in my learning of and using xpath.  I hope you find it useful and would love to hear your feedback and suggestions.</p>
+<h2>Usage</h2>
+<p>The main functions in the library are <code>$x</code> and those named with a prefix of <code>$x:</code> (eg: <code>$x:text</code>).  The rationale for choosing <code>$x</code> as a name was based on the FireBug xpath function and it being a short and uncommon name.  These xpath functions all take the xpath expression to be executed and an <span class="caps">XML</span> document.  They attempt to be flexible with respect to the form of the <span class="caps">XML</span> document may represent.  If it is a string it is treated as <span class="caps">XML</span>, if a byte array it is used directly, if already a Document or Node (from org.w3c.dom) they are used as-is.</p>
+<p>There are four forms of most of the core functions, each with a different suffix borrowed from regular expression syntax: none, &#42; + and ?.  For example, <code>$x:tag</code> has the following four implementations:</p>
+<ul>
+	<li><code>($x:tag  "//library")</code>: returns the single node found, throwing an exception if 0 or more than 1 are found.</li>
+	<li><code>($x:tag? "//library")</code>: returns the single node found or nil, throwing an exception if than 1 are found.</li>
+	<li><code>($x:tag* "//book")</code>:    returns an empty sequence or a sequence of the nodes found</li>
+	<li><code>($x:tag+ "//book")</code>:    returns a sequence of the nodes found, throwing an exception if none are found</li>
+</ul>
+<p>If you are interested in the entire node found by the XPath expressions and not just in particular aspects the node (tag, attributes, text content), <code>$x</code> function returns a map containing the <span class="caps">XML</span> tag (as a symbol), dom Node, the text (as a string), and a map of the attributes where the keys have been converted into symbols and the values remain Strings.</p>
+<pre><code>
+(ns example
+  (use [clj-xpath.core :only [$x $x:tag $x:text $x:attrs $x:attrs* $x:node]]))
+
+(def *some-xml*
+     "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;
+&lt;books&gt;
+  &lt;book title=\"Some Guide To XML\"&gt;
+    &lt;author&gt;
+      &lt;name&gt;P.T. Xarnum&lt;/name&gt;
+      &lt;email&gt;pt@x.m.l&lt;/email&gt;
+    &lt;/author&gt;
+    &lt;description&gt;
+      Simply the most comprehensive XML Book on the market today.
+    &lt;/description&gt;
+  &lt;/book&gt;
+  &lt;book title=\"Some Guide To Functional Programming\"&gt;
+    &lt;author&gt;
+      &lt;name&gt;S. Hawking&lt;/name&gt;
+      &lt;email&gt;universe@cambridge.ed.u&lt;/email&gt;
+    &lt;/author&gt;
+    &lt;description&gt;
+      This book is too smart for you, try 'Head first Quantum Mechanics for Dummies' instead.
+    &lt;/description&gt;
+  &lt;/book&gt;
+&lt;/books&gt;")
+
+
+;; get the top level tag:
+(prn ($x:tag "/*" *some-xml*))
+;; :books
+
+;; find all :book nodes, pull the title from the attributes:
+(prn (map #(-&gt; % :attrs :title) ($x "//book" *some-xml*)))
+;; ("Some Guide To XML" "Some Guide To Functional Programming")
+
+;; same result using the $x:attrs* function:
+(prn ($x:attrs* "//book" *some-xml* :title))
+;; ("Some Guide To XML" "Some Guide To Functional Programming")
+
+;; first select the :book element who's title has 'XML' in it
+;; from that node, get and print the author's name (text content):
+(prn ($x:text "./author/name"
+              ($x:node "//book[contains(@title,'XML')]" *some-xml*)))
+;; "P.T. Xarnum"
+</code></pre>
+<h2>Parsing and XPath Compilation</h2>
+<p>The <code>$x</code> and related functions support Strings, and in many cases, other convenient types for these arguments.  In all cases where it expects an <span class="caps">XML</span> Document it can be given a String, a byte array or a Document.  Where an xpath expression is expected it will take either a String or a pre-compiled XPathExpression.  The act of parsing an <span class="caps">XML</span> document or compiling an xpath expression is an expensive activity.  With this flexibility, clj-xpath supports the convenience of in-line usage (with String data), as well as pre-parsed and pre-compiled instances for better performance.</p>
+<pre><code>
+  (let [expr (xp:compile "/*")
+        doc  (xml-&gt;doc "&lt;authors&gt;&lt;author&gt;&lt;name&gt;P.T. Xarnum&lt;/name&gt;&lt;/author&gt;&lt;/authors&gt;")]
+    ($x:tag expr doc))
+</code></pre>
+<h3><code>(xml-&gt;doc doc) =&gt; Document</code></h3>
+<p>This function takes xml that is of one of the following types and returns a Document:  String, byte array or org.w3c.dom.Document.  In cases of repeated usage of the document (eg: executing multiple xpath expressions against the same document) this will improve performance.</p>
+<h3><code>($x:compile xpexpr) =&gt; javax.xml.xpath.XPathExpression</code></h3>
+<p>Pre-compiles the xpath expression.  In cases of repeated execution of the xpath expression this will improve performance.</p>
+<h2>Validation</h2>
+<p>Validation now off by default.  Validation is controlled by optional parameters passed to <code>xml-bytes-&gt;dom</code>, or by overriding the atom <code>*validation*</code> to false:</p>
+<pre><code>
+  (ns your.namespace
+    (:use clj-xpath.core))
+
+  (binding [*validation* false]
+    ($x:text "/this" "&lt;this&gt;foo&lt;/this&gt;"))
+</code></pre>
+<h2>XPath and <span class="caps">XML</span> Namespaces</h2>
+<p>To use the xpath library with an <span class="caps">XML</span> document that utilizes <span class="caps">XML</span> namespaces, you can make use of the `with-namespace-context` macro providing a map of aliases to the xmlns <span class="caps">URL</span>:</p>
+<pre><code>
+  (def xml (slurp "fixtures/namespace1.xml"))
+  (with-namespace-context {"atom" "http://www.w3.org/2005/Atom"}
+    ($x:text "//atom:title" xml-doc))
+  ;; =&gt; BookingCollection
+</pre><p></code></p>
+<p>There is also a utility function that can pull the namespace declarations from the root node of your <span class="caps">XML</span> document:</p>
+<pre><code>
+  (def xml (slurp "fixtures/namespace1.xml"))
+  (with-namespace-context (xmlnsmap-from-root-node xml-doc)
+    ($x:text "//atom:title" xml-doc))
+  ;; =&gt; BookingCollection
+</pre><p></code></p>
+<p>These two examples assume the following <span class="caps">XML</span> document:</p>
+<pre><code>
+&lt;atom:feed xml:base="http://nplhost:8042/sap/opu/sdata/IWFND/RMTSAMPLEFLIGHT/"
+                  xmlns:atom="http://www.w3.org/2005/Atom"
+                  xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices"
+                  xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"
+                  xmlns:sap="http://www.sap.com/Protocols/SAPData"&gt;
+
+&lt;atom:title&gt;BookingCollection&lt;/atom:title&gt;
+&lt;atom:updated&gt;2012-03-19T20:27:30Z&lt;/atom:updated&gt;
+
+&lt;atom:entry&gt;
+&lt;atom:author/&gt;
+&lt;/atom:entry&gt;
+
+&lt;atom:entry&gt;
+&lt;atom:author/&gt;
+&lt;atom:content type="application/xml"/&gt;
+&lt;/atom:entry&gt;
+
+&lt;/atom:feed&gt;
+</pre><p></code></p>
+<h2>Changes</h2>
+<h5>Version 1.4.1 : Sat Sep  7 21:10:16 <span class="caps">EDT</span> 2013<br />
+h5. Version 1.4.1 : Sat Sep  7 21:10:16 <span class="caps">EDT</span> 2013</h5>
+<ul>
+	<li>Support leiningen 2</li>
+	<li>create profiles for clojure 1.2 through 1.6</li>
+	<li>resolve reflection warnings: NB: two remain for clojure 1.3</li>
+</ul>
+<h5>Version 1.4.1 : Sat Feb 16 12:15:26 <span class="caps">EST</span> 2013</h5>
+<p>Changed project group from org.clojars.kyleburton to com.github.kyleburton.</p>
+<h5>Version 1.4.0 : Tue Dec 18 15:10:19 <span class="caps">EST</span> 2012</h5>
+<ul>
+	<li><code>:children</code> lazy seq of a Node&#8217;s children added by mtnygard</li>
+	<li>idiomatic use of next</li>
+</ul>
+<h2>Authors</h2>
+<ul>
+	<li>Kyle Burton &lt;kyle.burton@gmail.com&gt;</li>
+	<li>Trotter Cashion &lt;cashion@gmail.com&gt;</li>
+	<li>Michael Nygard &lt;mtnygard@gmail.com&gt;</li>
+</ul>

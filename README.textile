@@ -2,8 +2,6 @@ h1. Overview
 
 "clj-xpath":http://kyleburton.github.com/clj-xpath/site/ is a library that makes it easier to with XPath from Clojure.
 
-Note: This library has two main branches, the master branch (this branch) is for Clojure 1.3 compatability.  The clj-xpath-1.2 branch is for Clojure 1.2 compatability.  Both versions of the library are available on Clojars.
-
 h2. Use
 
 For "Leiningen":https://github.com/technomancy/leiningen add the following dependency to your project.clj file:
@@ -35,14 +33,18 @@ h2. Usage
 
 The main functions in the library are <code>$x</code> and those named with a prefix of <code>$x:</code> (eg: <code>$x:text</code>).  The rationale for choosing <code>$x</code> as a name was based on the FireBug xpath function and it being a short and uncommon name.  These xpath functions all take the xpath expression to be executed and an XML document.  They attempt to be flexible with respect to the form of the XML document may represent.  If it is a string it is treated as XML, if a byte array it is used directly, if already a Document or Node (from org.w3c.dom) they are used as-is.
 
-There are two forms of many of the functions, with one set ending with a star '*'.  The non-suffixed forms will perform their operation on a single result node, raising an exception if there isn't exactly one result from applying the xpath expression to the XML document.  The '*' suffixed forms return all of the matched nodes for further processing.
+There are four forms of most of the core functions, each with a different suffix borrowed from regular expression syntax: none, &#42; + and ?.  For example, @$x:tag@ has the following four implementations:
 
-<code>$x</code> function returns a map containing the XML tag (as a symbol), dom Node, the text (as a string), and a map of the attributes where the keys have been converted into symbols and the values remain Strings.
+* @($x:tag  "//library")@: returns the single node found, throwing an exception if 0 or more than 1 are found.
+* @($x:tag? "//library")@: returns the single node found or nil, throwing an exception if than 1 are found.
+* @($x:tag* "//book")@:    returns an empty sequence or a sequence of the nodes found
+* @($x:tag+ "//book")@:    returns a sequence of the nodes found, throwing an exception if none are found
+
+If you are interested in the entire node found by the XPath expressions and not just in particular aspects the node (tag, attributes, text content), <code>$x</code> function returns a map containing the XML tag (as a symbol), dom Node, the text (as a string), and a map of the attributes where the keys have been converted into symbols and the values remain Strings.
 
 <pre><code>
 (ns example
   (use [clj-xpath.core :only [$x $x:tag $x:text $x:attrs $x:attrs* $x:node]]))
-
 
 (def *some-xml*
      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
@@ -87,55 +89,6 @@ There are two forms of many of the functions, with one set ending with a star '*
 ;; "P.T. Xarnum"
 </code></pre>
 
-h2. API Reference
-
-h3. <code>($x xpexpr doc) => (map [...])</code>
-
-This is the main xpath application function.  It takes an xpath expression (as a string) and a document and returns a sequence of matched elements as maps.  The map contains the node's tag, attributes, text content and the dom Node itself.
-
-<pre><code>
-  { :tag    :tag-name
-    :attrs  { :a "map" :of "the attributes" }
-    :text   "the body content of the node and it's children"
-    :node   org.w3c.dom.Node }
-</code></pre>
-
-h3. <code>($x:tag*   xpexpr doc) => [:tag-name ...]</code>
-<code>($x:text* xpexpr doc) => ["the content" ..]</code>
-<code>($x:attrs* xpexpr doc) => [{:the "attrs" ...} ...]</code>
-<code>($x:node*  xpexpr doc) => [org.w3c.dom.Node ...]</code>
-
-These functions apply the xpath expression to the given document and return a sequence of the requested property.
-
-h3. <code>($x:tag?   xpexpr doc) => [:tag-name ...]</code>
-<code>($x:text? xpexpr doc) => ["the content" ..]</code>
-<code>($x:attrs? xpexpr doc) => [{:the "attrs" ...} ...]</code>
-<code>($x:node?  xpexpr doc) => [org.w3c.dom.Node ...]</code>
-
-These functions apply the xpath expression to the given document and return either nil or the single result found.  Unlinke the singleton forms, these do not throw and exception (just returning nil).
-
-h3. <code>($x:tag+   xpexpr doc) => [:tag-name ...]</code>
-<code>($x:text+ xpexpr doc) => ["the content" ..]</code>
-<code>($x:attrs+ xpexpr doc) => [{:the "attrs" ...} ...]</code>
-<code>($x:node+  xpexpr doc) => [org.w3c.dom.Node ...]</code>
-
-These functions apply the xpath expression to the given document and return multiple results - throwing an exception if the xpath expression matches no elements.
-
-h3. <code>($x:tag   xpexpr doc) => :tag-name</code>
-<code>($x:text  xpexpr doc) => "the content"</code>
-<code>($x:attrs xpexpr doc) => {:the "attrs" ...}</code>
-<code>($x:node  xpexpr doc) => org.w3c.dom.Node</code>
-
-These functions return the requested property from the single result of executing the xpath expression.  If the xpath expression identifies less than 1 result or more than 1 result in the given document, an exception is raised.
-
-h3. <code>(xml->doc doc) => Document</code>
-
-This function takes xml that is of one of the following types and returns a Document:  String, byte array or org.w3c.dom.Document.  In cases of repeated usage of the document (eg: executing multiple xpath expressions against the same document) this will improve performance.
-
-h3. <code>($x:compile xpexpr) => javax.xml.xpath.XPathExpression</code>
-
-Pre-compiles the xpath expression.  In cases of repeated execution of the xpath expression this will improve performance.
-
 h2. Parsing and XPath Compilation
 
 The <code>$x</code> and related functions support Strings, and in many cases, other convenient types for these arguments.  In all cases where it expects an XML Document it can be given a String, a byte array or a Document.  Where an xpath expression is expected it will take either a String or a pre-compiled XPathExpression.  The act of parsing an XML document or compiling an xpath expression is an expensive activity.  With this flexibility, clj-xpath supports the convenience of in-line usage (with String data), as well as pre-parsed and pre-compiled instances for better performance.
@@ -145,6 +98,15 @@ The <code>$x</code> and related functions support Strings, and in many cases, ot
         doc  (xml->doc "<authors><author><name>P.T. Xarnum</name></author></authors>")]
     ($x:tag expr doc))
 </code></pre>
+
+h3. <code>(xml->doc doc) => Document</code>
+
+This function takes xml that is of one of the following types and returns a Document:  String, byte array or org.w3c.dom.Document.  In cases of repeated usage of the document (eg: executing multiple xpath expressions against the same document) this will improve performance.
+
+h3. <code>($x:compile xpexpr) => javax.xml.xpath.XPathExpression</code>
+
+Pre-compiles the xpath expression.  In cases of repeated execution of the xpath expression this will improve performance.
+
 
 h2. Validation
 
@@ -204,6 +166,10 @@ These two examples assume the following XML document:
 </pre></code>
 
 h2. Changes
+
+h5. Version 1.4.3 : Sat Sep 14 10:11:56 EDT 2013
+
+* Compatibility with Clojure 1.2, 1.3, 1.4, 1.5 and 1.6-SNAPSHOT
 
 h5. Version 1.4.1 : Sat Sep  7 21:10:16 EDT 2013
 

@@ -1,0 +1,10 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    github-markup (0.7.5)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  github-markup
