@@ -35,8 +35,8 @@ The main functions in the library are <code>$x</code> and those named with a pre
 
 There are four forms of most of the core functions, each with a different suffix borrowed from regular expression syntax: none, &#42; + and ?.  For example, @$x:tag@ has the following four implementations:
 
-* @($x:tag  "//library")@: returns the single node found, throwing an exception if 0 or more than 1 are found.
-* @($x:tag? "//library")@: returns the single node found or nil, throwing an exception if than 1 are found.
+* @($x:tag  "//books")@: returns the single node found, throwing an exception if 0 or more than 1 are found.
+* @($x:tag? "//books")@: returns the single node found or nil, throwing an exception if than 1 are found.
 * @($x:tag* "//book")@:    returns an empty sequence or a sequence of the nodes found
 * @($x:tag+ "//book")@:    returns a sequence of the nodes found, throwing an exception if none are found
 
