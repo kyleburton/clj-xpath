@@ -40,32 +40,28 @@
 
       <section id="main_content" class="inner">
       <h3>Overview</h3>
-<p><a href="https://github.com/kyleburton/clj-xpath">clj-xpath</a> wraps Java&#8217;s XPath APIs to make it significantly easier to use for most common use cases.</p>
+<p><a href="https://github.com/kyleburton/clj-xpath">clj-xpath</a> wraps Java&#8217;s XPath APIs to make it significantly easier for common use cases.</p>
 <h3><a href="documentation/"><span class="caps">API</span> Documentation</a></h3>
 <h3>Project Dependencies</h3>
 <p>For Clojure, add the following to your <code>project.clj</code> file:</p>
-<div class="highlight"><pre><code class="clojure"> <span class="p">[</span><span class="nv">com</span><span class="o">.</span><span class="nv">github</span><span class="o">.</span><span class="nv">kyleburton/clj-xpath</span> <span class="s">&quot;1.4.1&quot;</span><span class="p">]</span>
-</code></pre>
-</div>
-<p>For maven, add the following dependency to your <code>pom.xml</code>:</p>
+<div class="highlight"><pre><code class="clojure"> <span class="p">[</span><span class="nv">com.github.kyleburton/clj-xpath</span> <span class="s">&quot;1.4.3&quot;</span><span class="p">]</span>
+</code></pre></div><p>For maven, add the following dependency to your <code>pom.xml</code>:</p>
 <div class="highlight"><pre><code class="xml"><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>com.github.kyleburton<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>clj-xpath<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.4.1<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.4.3<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
-</code></pre>
-</div>
-<h3>Example</h3>
+</code></pre></div><h3>Example</h3>
 <div class="highlight"><pre><code class="clojure"><span class="c1">;; This is an exmaple of using clj-xpath.  We&#39;ll grab an RSS</span>
 <span class="c1">;; feed (an XML document) and we&#39;lll use clj-xpath to explore the</span>
 <span class="c1">;; structure of the document as well as extract its contents.</span>
 
-<span class="p">(</span><span class="nf">ns</span> <span class="nv">clj-xpath-examples</span><span class="o">.</span><span class="nv">core</span>
-  <span class="p">(</span><span class="nf">:require</span>
-   <span class="p">[</span><span class="nv">clojure</span><span class="o">.</span><span class="nv">string</span> <span class="nv">:as</span> <span class="nv">string</span><span class="p">]</span>
-   <span class="p">[</span><span class="nv">clojure</span><span class="o">.</span><span class="nv">pprint</span> <span class="nv">:as</span> <span class="nv">pp</span><span class="p">])</span>
-  <span class="p">(</span><span class="nf">:use</span>
-   <span class="nv">clj-xpath</span><span class="o">.</span><span class="nv">core</span><span class="p">))</span>
+<span class="p">(</span><span class="kd">ns </span><span class="nv">clj-xpath-examples.core</span>
+  <span class="p">(</span><span class="ss">:require</span>
+   <span class="p">[</span><span class="nv">clojure.string</span> <span class="ss">:as</span> <span class="nv">string</span><span class="p">]</span>
+   <span class="p">[</span><span class="nv">clojure.pprint</span> <span class="ss">:as</span> <span class="nv">pp</span><span class="p">])</span>
+  <span class="p">(</span><span class="ss">:use</span>
+   <span class="nv">clj-xpath.core</span><span class="p">))</span>
 
 <span class="c1">;; Lets define an URL to an RSS feed...</span>
 <span class="p">(</span><span class="k">def </span><span class="nv">hackernews-rss-url</span> <span class="s">&quot;http://news.ycombinator.com/rss&quot;</span><span class="p">)</span>
@@ -95,21 +91,21 @@
   <span class="p">(</span><span class="nf">-&gt;</span>
    <span class="p">(</span><span class="nf">$x</span> <span class="s">&quot;/*&quot;</span> <span class="p">(</span><span class="nf">xmldoc</span><span class="p">))</span>
    <span class="nv">first</span>
-   <span class="p">(</span><span class="nb">dissoc </span><span class="nv">:text</span><span class="p">))</span>
+   <span class="p">(</span><span class="nb">dissoc </span><span class="ss">:text</span><span class="p">))</span>
   <span class="c1">;; =&gt; {:node #&lt;DeferredElementImpl [rss: null]&gt;, :tag :rss, :attrs {:version &quot;2.0&quot;}}</span>
 
   <span class="c1">;; extract the root node&#39;s tag:</span>
-  <span class="p">(</span><span class="nf">$x:tag</span> <span class="s">&quot;/*&quot;</span> <span class="p">(</span><span class="nf">xmldoc</span><span class="p">))</span>
+  <span class="p">(</span><span class="nf">$x</span><span class="ss">:tag</span> <span class="s">&quot;/*&quot;</span> <span class="p">(</span><span class="nf">xmldoc</span><span class="p">))</span>
   <span class="c1">;; =&gt; :rss</span>
 
   <span class="c1">;; extract the channel&#39;s title link and description:</span>
-  <span class="p">(</span><span class="nf">$x:text</span> <span class="s">&quot;/rss/channel/title&quot;</span> <span class="p">(</span><span class="nf">xmldoc</span><span class="p">))</span>
+  <span class="p">(</span><span class="nf">$x</span><span class="ss">:text</span> <span class="s">&quot;/rss/channel/title&quot;</span> <span class="p">(</span><span class="nf">xmldoc</span><span class="p">))</span>
   <span class="c1">;; =&gt; &quot;Hacker News&quot;</span>
 
-  <span class="p">(</span><span class="nf">$x:text</span> <span class="s">&quot;/rss/channel/link&quot;</span> <span class="p">(</span><span class="nf">xmldoc</span><span class="p">))</span>
+  <span class="p">(</span><span class="nf">$x</span><span class="ss">:text</span> <span class="s">&quot;/rss/channel/link&quot;</span> <span class="p">(</span><span class="nf">xmldoc</span><span class="p">))</span>
   <span class="c1">;; =&gt; &quot;http://news.ycombinator.com/&quot;</span>
 
-  <span class="p">(</span><span class="nf">$x:text</span> <span class="s">&quot;/rss/channel/description&quot;</span> <span class="p">(</span><span class="nf">xmldoc</span><span class="p">))</span>
+  <span class="p">(</span><span class="nf">$x</span><span class="ss">:text</span> <span class="s">&quot;/rss/channel/description&quot;</span> <span class="p">(</span><span class="nf">xmldoc</span><span class="p">))</span>
   <span class="c1">;; =&gt; &quot;Links for the intellectually curious, ranked by readers.&quot;</span>
 
   <span class="c1">;; If you&#39;re not intimately familiar with the structure of your XML</span>
@@ -119,7 +115,7 @@
 
 <span class="c1">;; Traverses the entire document, returning a distincted list of the</span>
 <span class="c1">;; tags (in no particular order).</span>
-<span class="p">(</span><span class="k">defn </span><span class="nv">all-tags</span> <span class="p">[</span><span class="nv">doc</span><span class="p">]</span>
+<span class="p">(</span><span class="kd">defn </span><span class="nv">all-tags</span> <span class="p">[</span><span class="nv">doc</span><span class="p">]</span>
   <span class="p">(</span><span class="nf">map</span>
    <span class="c1">;; turn the keywords into strings</span>
    <span class="nv">name</span>
@@ -127,11 +123,11 @@
     <span class="c1">;; reduce the stream of nodes into a distinct list</span>
     <span class="p">(</span><span class="nf">reduce</span>
      <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">acc</span> <span class="nv">node</span><span class="p">]</span>
-       <span class="p">(</span><span class="nb">conj </span><span class="nv">acc</span> <span class="p">(</span><span class="nf">:tag</span> <span class="nv">node</span><span class="p">)))</span>
+       <span class="p">(</span><span class="nb">conj </span><span class="nv">acc</span> <span class="p">(</span><span class="ss">:tag</span> <span class="nv">node</span><span class="p">)))</span>
      <span class="o">#</span><span class="p">{}</span>
      <span class="c1">;; tree-seq flattens the document into a one-dimensional stream</span>
      <span class="c1">;; of nodes:</span>
-     <span class="p">(</span><span class="nb">tree-seq </span><span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">n</span><span class="p">]</span> <span class="p">(</span><span class="nf">:node</span> <span class="nv">n</span><span class="p">))</span>
+     <span class="p">(</span><span class="nb">tree-seq </span><span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">n</span><span class="p">]</span> <span class="p">(</span><span class="ss">:node</span> <span class="nv">n</span><span class="p">))</span>
                <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">n</span><span class="p">]</span> <span class="p">(</span><span class="nf">$x</span> <span class="s">&quot;./*&quot;</span> <span class="nv">n</span><span class="p">))</span>
                <span class="p">(</span><span class="nb">first </span><span class="p">(</span><span class="nf">$x</span> <span class="s">&quot;./*&quot;</span> <span class="nv">doc</span><span class="p">)))))))</span>
 
@@ -150,17 +146,17 @@
 <span class="c1">;; arguments:</span>
 <span class="c1">;;  * path: the path to the node being visited</span>
 <span class="c1">;;  * node: the node being visited</span>
-<span class="p">(</span><span class="k">defn </span><span class="nv">visit-nodes</span>
-  <span class="p">([</span><span class="nv">path</span> <span class="nv">nodes</span> <span class="nv">f</span><span class="p">]</span>
+<span class="p">(</span><span class="kd">defn </span><span class="nv">visit-nodes</span>
+  <span class="p">([</span><span class="nb">path </span><span class="nv">nodes</span> <span class="nv">f</span><span class="p">]</span>
      <span class="p">(</span><span class="nf">vec</span>
       <span class="p">(</span><span class="nf">mapcat</span>
-       <span class="o">#</span><span class="p">(</span><span class="nv">vec</span>
+       <span class="o">#</span><span class="p">(</span><span class="nf">vec</span>
          <span class="p">(</span><span class="nf">cons</span>
           <span class="c1">;; invoke the callback on the each of the nodes</span>
-          <span class="p">(</span><span class="nf">f</span> <span class="p">(</span><span class="nb">conj </span><span class="nv">path</span> <span class="p">(</span><span class="nf">:tag</span> <span class="nv">%1</span><span class="p">))</span> <span class="nv">%1</span><span class="p">)</span>
+          <span class="p">(</span><span class="nf">f</span> <span class="p">(</span><span class="nb">conj path </span><span class="p">(</span><span class="ss">:tag</span> <span class="nv">%1</span><span class="p">))</span> <span class="nv">%1</span><span class="p">)</span>
           <span class="c1">;; visit each of the children of this node</span>
           <span class="p">(</span><span class="nf">visit-nodes</span>
-           <span class="p">(</span><span class="nb">conj </span><span class="nv">path</span> <span class="p">(</span><span class="nf">:tag</span> <span class="nv">%1</span><span class="p">))</span>
+           <span class="p">(</span><span class="nb">conj path </span><span class="p">(</span><span class="ss">:tag</span> <span class="nv">%1</span><span class="p">))</span>
            <span class="p">(</span><span class="nf">$x</span> <span class="s">&quot;./*&quot;</span> <span class="nv">%1</span><span class="p">)</span> <span class="nv">f</span><span class="p">)))</span>
        <span class="nv">nodes</span><span class="p">))))</span>
 
@@ -170,8 +166,8 @@
                <span class="p">(</span><span class="nf">$x</span> <span class="s">&quot;./*&quot;</span> <span class="p">(</span><span class="nf">xmldoc</span><span class="p">))</span>
                <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">p</span> <span class="nv">n</span><span class="p">]</span>
                  <span class="p">(</span><span class="nf">printf</span> <span class="s">&quot;%s tag:%s\n&quot;</span>
-                         <span class="p">(</span><span class="nb">apply </span><span class="nv">str</span> <span class="p">(</span><span class="nf">interpose</span> <span class="s">&quot;/&quot;</span> <span class="p">(</span><span class="nb">map </span><span class="nv">name</span> <span class="nv">p</span><span class="p">)))</span>
-                         <span class="p">(</span><span class="nb">name </span><span class="p">(</span><span class="nf">:tag</span> <span class="nv">n</span><span class="p">)))))</span>
+                         <span class="p">(</span><span class="nb">apply str </span><span class="p">(</span><span class="nf">interpose</span> <span class="s">&quot;/&quot;</span> <span class="p">(</span><span class="nb">map name </span><span class="nv">p</span><span class="p">)))</span>
+                         <span class="p">(</span><span class="nb">name </span><span class="p">(</span><span class="ss">:tag</span> <span class="nv">n</span><span class="p">)))))</span>
   <span class="c1">;; Here&#39;s the output from the above:</span>
   <span class="c1">;;     rss tag:rss</span>
   <span class="c1">;;     rss/channel tag:channel</span>
@@ -184,15 +180,15 @@
 
 <span class="c1">;; This is pretty much what we want, lets wrap it up into a</span>
 <span class="c1">;; funciton...</span>
-<span class="p">(</span><span class="k">defn </span><span class="nv">all-paths</span> <span class="p">[</span><span class="nv">doc</span><span class="p">]</span>
+<span class="p">(</span><span class="kd">defn </span><span class="nv">all-paths</span> <span class="p">[</span><span class="nv">doc</span><span class="p">]</span>
   <span class="p">(</span><span class="nf">map</span>
-   <span class="o">#</span><span class="p">(</span><span class="nv">str</span> <span class="s">&quot;/&quot;</span> <span class="p">(</span><span class="nf">string/join</span> <span class="s">&quot;/&quot;</span> <span class="p">(</span><span class="nb">map </span><span class="nv">name</span> <span class="nv">%1</span><span class="p">)))</span>
+   <span class="o">#</span><span class="p">(</span><span class="nb">str </span><span class="s">&quot;/&quot;</span> <span class="p">(</span><span class="nf">string/join</span> <span class="s">&quot;/&quot;</span> <span class="p">(</span><span class="nb">map name </span><span class="nv">%1</span><span class="p">)))</span>
    <span class="p">(</span><span class="nf">first</span>
     <span class="p">(</span><span class="nf">reduce</span>
      <span class="p">(</span><span class="k">fn </span><span class="p">[[</span><span class="nv">acc</span> <span class="nv">set</span><span class="p">]</span> <span class="nv">p</span><span class="p">]</span>
-       <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">contains? </span><span class="nv">set</span> <span class="nv">p</span><span class="p">)</span>
+       <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">contains? set </span><span class="nv">p</span><span class="p">)</span>
          <span class="p">[</span><span class="nv">acc</span> <span class="nv">set</span><span class="p">]</span>
-         <span class="p">[(</span><span class="nb">conj </span><span class="nv">acc</span> <span class="nv">p</span><span class="p">)</span> <span class="p">(</span><span class="nb">conj </span><span class="nv">set</span> <span class="nv">p</span><span class="p">)]))</span>
+         <span class="p">[(</span><span class="nb">conj </span><span class="nv">acc</span> <span class="nv">p</span><span class="p">)</span> <span class="p">(</span><span class="nb">conj set </span><span class="nv">p</span><span class="p">)]))</span>
      <span class="p">[[]</span> <span class="o">#</span><span class="p">{}]</span>
      <span class="p">(</span><span class="nf">visit-nodes</span> <span class="p">[]</span>
                   <span class="p">(</span><span class="nf">$x</span> <span class="s">&quot;./*&quot;</span> <span class="nv">doc</span><span class="p">)</span>
@@ -225,8 +221,8 @@
   <span class="p">(</span><span class="nf">pp/pprint</span>
    <span class="p">(</span><span class="nf">map</span>
     <span class="p">(</span><span class="k">fn </span><span class="p">[</span><span class="nv">item</span><span class="p">]</span>
-      <span class="p">{</span><span class="nv">:title</span> <span class="p">(</span><span class="nf">$x:text</span> <span class="s">&quot;./title&quot;</span> <span class="nv">item</span><span class="p">)</span>
-       <span class="nv">:link</span>  <span class="p">(</span><span class="nf">$x:text</span> <span class="s">&quot;./link&quot;</span> <span class="nv">item</span><span class="p">)})</span>
+      <span class="p">{</span><span class="ss">:title</span> <span class="p">(</span><span class="nf">$x</span><span class="ss">:text</span> <span class="s">&quot;./title&quot;</span> <span class="nv">item</span><span class="p">)</span>
+       <span class="ss">:link</span>  <span class="p">(</span><span class="nf">$x</span><span class="ss">:text</span> <span class="s">&quot;./link&quot;</span> <span class="nv">item</span><span class="p">)})</span>
     <span class="p">(</span><span class="nb">take </span><span class="mi">5</span>
           <span class="p">(</span><span class="nf">$x</span> <span class="s">&quot;/rss/channel/item&quot;</span> <span class="p">(</span><span class="nf">xmldoc</span><span class="p">)))))</span>
 
@@ -249,8 +245,7 @@
 
   <span class="c1">;; That concludes the overview of clj-xpath&#39;s main features.</span>
   <span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div>
       </section>
     </div>
 

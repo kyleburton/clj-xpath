@@ -4,7 +4,14 @@ namespace :jekyll do
   desc "run jekyll in auto mode"
   task :autogen do
     Dir.chdir("src") do
-      exec "jekyll --auto --server 4444"
+      exec "jekyll serve -d site -w"
+    end
+  end
+
+  desc "Build site."
+  task :build do
+    Dir.chdir("src") do
+      exec "jekyll build -s src -d site"
     end
   end
 end

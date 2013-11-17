@@ -48,14 +48,12 @@
 <h2>Applying XPath Expressions</h2>
 <h3><code>($x xpexpr doc) =&gt; (map [...])</code></h3>
 <p>This is the main xpath application function.  It takes an xpath expression (as a string) and a document and returns a sequence of matched elements as maps.  The map contains the node&#8217;s tag, attributes, text content, the dom Node itself and a lazy sequence of the node&#8217;s children.</p>
-<div class="highlight"><pre><code class="clojure"><span class="p">{</span> <span class="nv">:tag</span>      <span class="nv">:tag-name</span>
-  <span class="nv">:attrs</span>    <span class="p">{</span> <span class="nv">:a</span> <span class="s">&quot;map&quot;</span> <span class="nv">:of</span> <span class="s">&quot;the attributes&quot;</span> <span class="p">}</span>
-  <span class="nv">:text</span>     <span class="s">&quot;the body content of the node and it&#39;s children&quot;</span>
-  <span class="nv">:node</span>     <span class="nv">org</span><span class="o">.</span><span class="nv">w3c</span><span class="o">.</span><span class="nv">dom</span><span class="o">.</span><span class="nv">Node</span>
-  <span class="nv">:children</span> <span class="o">...</span><span class="nv">seq</span> <span class="nv">of</span> <span class="nv">children</span><span class="o">...</span> <span class="p">}</span>
-</code></pre>
-</div>
-<h2>Extraction Functions</h2>
+<div class="highlight"><pre><code class="clojure"><span class="p">{</span> <span class="ss">:tag</span>      <span class="ss">:tag-name</span>
+  <span class="ss">:attrs</span>    <span class="p">{</span> <span class="ss">:a</span> <span class="s">&quot;map&quot;</span> <span class="ss">:of</span> <span class="s">&quot;the attributes&quot;</span> <span class="p">}</span>
+  <span class="ss">:text</span>     <span class="s">&quot;the body content of the node and it&#39;s children&quot;</span>
+  <span class="ss">:node</span>     <span class="nv">org.w3c.dom.Node</span>
+  <span class="ss">:children</span> <span class="nv">...seq</span> <span class="nv">of</span> <span class="nv">children...</span> <span class="p">}</span>
+</code></pre></div><h2>Extraction Functions</h2>
 <h3><code>($x:tag*   xpexpr doc) =&gt; [:tag-name ...]</code><br />
 <code>($x:text* xpexpr doc) =&gt; ["the content" ..]</code><br />
 <code>($x:attrs* xpexpr doc) =&gt; [{:the "attrs" ...} ...]</code><br />
@@ -83,14 +81,12 @@
 <p>Pre-compiles the xpath expression.  In cases of repeated execution of an xpath expression this will improve performance.</p>
 <h2>Validation</h2>
 <p>Validation is off by default.  Validation is controlled by optional parameters passed to <code>xml-bytes-&gt;dom</code>, or by overriding the dynamic var <code>*validation*</code> to true:</p>
-<div class="highlight"><pre><code class="clojure"><span class="p">(</span><span class="nf">ns</span> <span class="nv">your</span><span class="o">.</span><span class="nv">namespace</span>
-  <span class="p">(</span><span class="nf">:use</span> <span class="nv">clj-xpath</span><span class="o">.</span><span class="nv">core</span><span class="p">))</span>
+<div class="highlight"><pre><code class="clojure"><span class="p">(</span><span class="kd">ns </span><span class="nv">your.namespace</span>
+  <span class="p">(</span><span class="ss">:use</span> <span class="nv">clj-xpath.core</span><span class="p">))</span>
 
 <span class="p">(</span><span class="nb">binding </span><span class="p">[</span><span class="nv">*validation*</span> <span class="nv">false</span><span class="p">]</span>
-  <span class="p">(</span><span class="nf">$x:text</span> <span class="s">&quot;/this&quot;</span> <span class="s">&quot;&lt;this&gt;foo&lt;/this&gt;&quot;</span><span class="p">))</span>
-</code></pre>
-</div>
-<h2>XPath and <span class="caps">XML</span> Namespaces</h2>
+  <span class="p">(</span><span class="nf">$x</span><span class="ss">:text</span> <span class="s">&quot;/this&quot;</span> <span class="s">&quot;&lt;this&gt;foo&lt;/this&gt;&quot;</span><span class="p">))</span>
+</code></pre></div><h2>XPath and <span class="caps">XML</span> Namespaces</h2>
 <p>These examples assume the following <span class="caps">XML</span> document:</p>
 <div class="highlight"><pre><code class="xml"><span class="nt">&lt;atom:feed</span> <span class="na">xml:base=</span><span class="s">&quot;http://nplhost:8042/sap/opu/sdata/IWFND/RMTSAMPLEFLIGHT/&quot;</span>
                   <span class="na">xmlns:atom=</span><span class="s">&quot;http://www.w3.org/2005/Atom&quot;</span>
@@ -111,22 +107,17 @@
   <span class="nt">&lt;/atom:entry&gt;</span>
 
 <span class="nt">&lt;/atom:feed&gt;</span>
-</code></pre>
-</div>
-<p>To use the xpath library with an <span class="caps">XML</span> document that utilizes <span class="caps">XML</span> namespaces, you can make use of the `with-namespace-context` macro providing a map of aliases to the xmlns <span class="caps">URL</span>:</p>
+</code></pre></div><p>To use the xpath library with an <span class="caps">XML</span> document that utilizes <span class="caps">XML</span> namespaces, you can make use of the `with-namespace-context` macro providing a map of aliases to the xmlns <span class="caps">URL</span>:</p>
 <div class="highlight"><pre><code class="clojure"><span class="p">(</span><span class="k">def </span><span class="nv">xml</span> <span class="p">(</span><span class="nb">slurp </span><span class="s">&quot;fixtures/namespace1.xml&quot;</span><span class="p">))</span>
 <span class="p">(</span><span class="nf">with-namespace-context</span> <span class="p">{</span><span class="s">&quot;atom&quot;</span> <span class="s">&quot;http://www.w3.org/2005/Atom&quot;</span><span class="p">}</span>
-  <span class="p">(</span><span class="nf">$x:text</span> <span class="s">&quot;//atom:title&quot;</span> <span class="nv">xml-doc</span><span class="p">))</span>
+  <span class="p">(</span><span class="nf">$x</span><span class="ss">:text</span> <span class="s">&quot;//atom:title&quot;</span> <span class="nv">xml-doc</span><span class="p">))</span>
 <span class="c1">;; =&gt; BookingCollection</span>
-</code></pre>
-</div>
-<p>There is also a utility function that can pull the namespace declarations from the root node of your <span class="caps">XML</span> document:</p>
+</code></pre></div><p>There is also a utility function that can pull the namespace declarations from the root node of your <span class="caps">XML</span> document:</p>
 <div class="highlight"><pre><code class="clojure"><span class="p">(</span><span class="k">def </span><span class="nv">xml</span> <span class="p">(</span><span class="nb">slurp </span><span class="s">&quot;fixtures/namespace1.xml&quot;</span><span class="p">))</span>
 <span class="p">(</span><span class="nf">with-namespace-context</span> <span class="p">(</span><span class="nf">xmlnsmap-from-root-node</span> <span class="nv">xml-doc</span><span class="p">)</span>
-  <span class="p">(</span><span class="nf">$x:text</span> <span class="s">&quot;//atom:title&quot;</span> <span class="nv">xml-doc</span><span class="p">))</span>
+  <span class="p">(</span><span class="nf">$x</span><span class="ss">:text</span> <span class="s">&quot;//atom:title&quot;</span> <span class="nv">xml-doc</span><span class="p">))</span>
 <span class="c1">;; =&gt; BookingCollection</span>
-</code></pre>
-</div>
+</code></pre></div>
       </section>
     </div>
 
