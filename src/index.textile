@@ -6,7 +6,7 @@ show_downloads: true
 
 h3. Overview
 
-"clj-xpath":https://github.com/kyleburton/clj-xpath wraps Java's XPath APIs to make it significantly easier to use for most common use cases.
+"clj-xpath":https://github.com/kyleburton/clj-xpath wraps Java's XPath APIs to make it significantly easier for common use cases.
 
 h3. "API Documentation":documentation/
 
