@@ -1,6 +1,6 @@
 h1. Overview
 
-"clj-xpath":http://kyleburton.github.com/clj-xpath/site/ is a library that makes it easier to with XPath from Clojure.
+"clj-xpath":http://kyleburton.github.com/clj-xpath/site/ is a library that makes it easier to work with XPath from Clojure.
 
 h2. Use
 
