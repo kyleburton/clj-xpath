@@ -40,7 +40,7 @@ There are four forms of most of the core functions, each with a different suffix
 * @($x:tag* "//book")@:    returns an empty sequence or a sequence of the nodes found
 * @($x:tag+ "//book")@:    returns a sequence of the nodes found, throwing an exception if none are found
 
-If you are interested in the entire node found by the XPath expressions and not just in particular aspects the node (tag, attributes, text content), <code>$x</code> function returns a map containing the XML tag (as a symbol), dom Node, the text (as a string), and a map of the attributes where the keys have been converted into symbols and the values remain Strings.
+If you are interested in the entire node found by the XPath expressions and not just in particular aspects the node (tag, attributes, text content), <code>$x</code> function returns a map containing the XML tag (as a symbol), dom Node, the text (as a string), and a map of the attributes where the keys have been converted into keywords and the values remain Strings.
 
 <pre><code>
 (ns example
@@ -103,7 +103,7 @@ h3. <code>(xml->doc doc) => Document</code>
 
 This function takes xml that is of one of the following types and returns a Document:  String, byte array or org.w3c.dom.Document.  In cases of repeated usage of the document (eg: executing multiple xpath expressions against the same document) this will improve performance.
 
-h3. <code>($x:compile xpexpr) => javax.xml.xpath.XPathExpression</code>
+h3. <code>(xp:compile xpexpr) => javax.xml.xpath.XPathExpression</code>
 
 Pre-compiles the xpath expression.  In cases of repeated execution of the xpath expression this will improve performance.
 
