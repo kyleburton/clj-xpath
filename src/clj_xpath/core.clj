@@ -87,7 +87,8 @@ See: format"
 (defn- xml-bytes->dom
   "Convert a byte array into a DOM."
   [bytes & [opts]]
-  (input-stream->dom (ByteArrayInputStream. bytes) opts))
+  (with-open [istr (ByteArrayInputStream. bytes)]
+    (input-stream->dom istr opts)))
 
 (defmulti  xml->doc
   "Convert various forms of XML into a Document.  Supported forms:

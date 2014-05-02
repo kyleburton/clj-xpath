@@ -64,7 +64,7 @@
            ($x:tag expr doc)))))
 
 (deftest should-support-input-stream-as-xml-source
-  (let [istr (java.io.ByteArrayInputStream. (.getBytes ^String (:simple xml-fixtures)))]
+  (with-open [istr (java.io.ByteArrayInputStream. (.getBytes ^String (:simple xml-fixtures)))]
     (is (= :top-tag
            ($x:tag "/*" istr)))))
 
