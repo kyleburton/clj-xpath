@@ -1,24 +1,8 @@
+!http://clojars.org/com.github.kyleburton/clj-xpath/latest-version.svg!:http://clojars.org/com.github.kyleburton/clj-xpath
+
 h1. Overview
 
 "clj-xpath":http://kyleburton.github.com/clj-xpath/site/ is a library that makes it easier to work with XPath from Clojure.
-
-h2. Use
-
-For "Leiningen":https://github.com/technomancy/leiningen add the following dependency to your project.clj file:
-
-<pre>
-    [com.github.kyleburton/clj-xpath "1.4.3"]
-</pre>
-
-For Maven: add the following in your pom.xml file in the `dependencies` section:
-
-<pre>
-    <dependency>
-      <groupId>com.github.kyleburton</groupId>
-      <artifactId>clj-xpath</artifactId>
-      <version>1.4.3</version>
-    </dependency>
-</pre>
 
 h2. "Documentation":http://kyleburton.github.com/clj-xpath/site/
 
