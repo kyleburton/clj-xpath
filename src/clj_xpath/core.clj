@@ -84,7 +84,7 @@ See: format"
       (.setErrorHandler builder error-h))
     (.parse builder istr)))
 
-(defn- xml-bytes->dom
+(defn xml-bytes->dom
   "Convert a byte array into a DOM."
   [bytes & [opts]]
   (with-open [istr (ByteArrayInputStream. bytes)]
