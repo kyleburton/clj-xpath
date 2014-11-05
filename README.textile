@@ -1,24 +1,8 @@
+!http://clojars.org/com.github.kyleburton/clj-xpath/latest-version.svg!:http://clojars.org/com.github.kyleburton/clj-xpath
+
 h1. Overview
 
 "clj-xpath":http://kyleburton.github.com/clj-xpath/site/ is a library that makes it easier to work with XPath from Clojure.
-
-h2. Use
-
-For "Leiningen":https://github.com/technomancy/leiningen add the following dependency to your project.clj file:
-
-<pre>
-    [com.github.kyleburton/clj-xpath "1.4.3"]
-</pre>
-
-For Maven: add the following in your pom.xml file in the `dependencies` section:
-
-<pre>
-    <dependency>
-      <groupId>com.github.kyleburton</groupId>
-      <artifactId>clj-xpath</artifactId>
-      <version>1.4.3</version>
-    </dependency>
-</pre>
 
 h2. "Documentation":http://kyleburton.github.com/clj-xpath/site/
 
@@ -35,10 +19,10 @@ The main functions in the library are <code>$x</code> and those named with a pre
 
 There are four forms of most of the core functions, each with a different suffix borrowed from regular expression syntax: none, &#42; + and ?.  For example, @$x:tag@ has the following four implementations:
 
-* @($x:tag  "//books")@: returns the single node found, throwing an exception if 0 or more than 1 are found.
-* @($x:tag? "//books")@: returns the single node found or nil, throwing an exception if than 1 are found.
-* @($x:tag* "//book")@:    returns an empty sequence or a sequence of the nodes found
-* @($x:tag+ "//book")@:    returns a sequence of the nodes found, throwing an exception if none are found
+* @($x:tag  "//books")@: '1 and only 1', returns the single node found, throwing an exception if none or more than 1 are found.
+* @($x:tag? "//books")@: '0 or 1', returns the single node found or nil, throwing an exception if more than 1 are found.
+* @($x:tag* "//book")@: '0 or more', returns a sequence of the nodes found (which may be empty)
+* @($x:tag+ "//book")@: '1 or more'returns a sequence of the nodes found, throwing an exception if none are found
 
 If you are interested in the entire node found by the XPath expressions and not just in particular aspects the node (tag, attributes, text content), <code>$x</code> function returns a map containing the XML tag (as a symbol), dom Node, the text (as a string), and a map of the attributes where the keys have been converted into keywords and the values remain Strings.
 
