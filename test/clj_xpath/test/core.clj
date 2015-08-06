@@ -152,16 +152,39 @@
         (is (= :OTA_HotelAvailRQ (xp/$x:tag "/soapenv:Envelope/soapenv:Body/:OTA_HotelAvailRQ" doc)))))))
 
 #_(deftest test-abs-path-with-blank-namespace
- (let [xml (slurp "fixtures/soap1.xml")]
-   (xp/with-namespace-awareness
-     (let [doc (xp/xml->doc xml)]
-       (xp/set-namespace-context! (xp/xmlnsmap-from-document doc))
-       (is (= "/soapenv:Envelope[1]/soapenv:Body[1]/:OTA_HotelAvailRQ[1]"
-              (xp/abs-path (first (xp/$x "/soapenv:Envelope[1]/soapenv:Body[1]/:OTA_HotelAvailRQ[1]" doc)))))))))
+    (let [xml (slurp "fixtures/soap1.xml")]
+      (xp/with-namespace-awareness
+        (let [doc (xp/xml->doc xml)]
+          (xp/set-namespace-context! (xp/xmlnsmap-from-document doc))
+          (is (= "/soapenv:Envelope[1]/soapenv:Body[1]/:OTA_HotelAvailRQ[1]"
+                 (xp/abs-path (first (xp/$x "/soapenv:Envelope[1]/soapenv:Body[1]/:OTA_HotelAvailRQ[1]" doc)))))))))
+
+(deftest test-owasp-xxe-processing-vulnerability
+  (is
+   (thrown?
+    org.xml.sax.SAXParseException
+    (xml->doc
+     "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>
+<!DOCTYPE foo [
+  <!ELEMENT foo ANY>
+  <!ENTITY xxe SYSTEM \"file:///etc/passwd\">
+]><foo>&xxe;</foo>")))
+
+  (is
+   (not
+    (nil?
+     (xml->doc
+      "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>
+<!DOCTYPE foo [
+  <!ELEMENT foo ANY>
+  <!ENTITY xxe SYSTEM \"file:///etc/passwd\">
+]><foo>&xxe;</foo>"
+      {:disallow-doctype-decl false})))))
 
 
 
 (comment
+  (test-owasp-xxe-processing-vulnerability)
 
   (test-with-blank-ns)
 
@@ -208,19 +231,4 @@
 
 
 
-
-
-
   )
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,3 +1,5 @@
-XPath with Namespaces:  
-  http://blog.davber.com/2006/09/17/xpath-with-namespaces-in-java/
-  https://github.com/kyleburton/clj-xpath/issues/3
+* Document the new document factory options implemented by the
+  fix for https://github.com/kyleburton/clj-xpath/issues/25
+* XPath with Namespaces:  
+    http://blog.davber.com/2006/09/17/xpath-with-namespaces-in-java/
+    https://github.com/kyleburton/clj-xpath/issues/3

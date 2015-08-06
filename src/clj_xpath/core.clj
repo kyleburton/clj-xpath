@@ -9,7 +9,8 @@
    [javax.xml.validation        SchemaFactory]
    [org.w3c.dom                 Document Node]
    [javax.xml.parsers           DocumentBuilderFactory]
-   [javax.xml.xpath             XPathFactory XPathConstants XPathExpression])
+   [javax.xml.xpath             XPathFactory XPathConstants XPathExpression]
+   [javax.xml                   XMLConstants])
   (:gen-class))
 
 (def ^{:dynamic true} *namespace-aware*  false)
@@ -71,13 +72,24 @@ See: format"
 
 (def ^{:dynamic true} *validation* false)
 
+(def disallow-doctype-decl       "http://apache.org/xml/features/disallow-doctype-decl")
+(def external-general-entities   "http://xml.org/sax/features/external-general-entities")
+(def external-parameter-entities "http://xml.org/sax/features/external-parameter-entities")
+
+(defn make-dom-factory [opts]
+  (doto (DocumentBuilderFactory/newInstance)
+    (.setNamespaceAware *namespace-aware*)
+    (.setValidating (:validation opts *validation*))
+    (.setFeature XMLConstants/FEATURE_SECURE_PROCESSING (:feature-secure-processing   opts true))
+    (.setFeature disallow-doctype-decl                  (:disallow-doctype-decl       opts true))
+    (.setFeature external-general-entities              (:external-general-entities   opts false))
+    (.setFeature external-parameter-entities            (:external-parameter-entities opts false))))
+
 (defn- input-stream->dom
   "Convert an input stream into a DOM."
   [^java.io.InputStream istr & [opts]]
   (let [opts        (or opts {})
-        dom-factory (doto (DocumentBuilderFactory/newInstance)
-                      (.setNamespaceAware *namespace-aware*)
-                      (.setValidating (:validation opts *validation*)))
+        dom-factory (make-dom-factory opts)
         builder     (.newDocumentBuilder dom-factory)
         error-h     (:error-handler opts)]
     (when error-h
@@ -100,9 +112,9 @@ See: format"
     org.w3c.dom.Node
 "
   (fn [thing & [opts]] (class thing)))
-(defmethod xml->doc String               [thing & [opts]] (xml-bytes->dom (.getBytes ^String thing ^String *default-encoding*)))
-(defmethod xml->doc (Class/forName "[B") [thing & [opts]] (xml-bytes->dom thing))
-(defmethod xml->doc InputStream          [thing & [opts]] (input-stream->dom thing))
+(defmethod xml->doc String               [thing & [opts]] (xml-bytes->dom (.getBytes ^String thing ^String *default-encoding*) opts))
+(defmethod xml->doc (Class/forName "[B") [thing & [opts]] (xml-bytes->dom thing opts))
+(defmethod xml->doc InputStream          [thing & [opts]] (input-stream->dom thing opts))
 (defmethod xml->doc org.w3c.dom.Document [thing & [opts]] thing)
 (defmethod xml->doc Node                 [thing & [opts]] thing)
 (defmethod xml->doc :default             [thing & [opts]]
@@ -139,8 +151,8 @@ See: format"
 "
   [#^Node node]
   (let [lazy-children (fn [#^Node n] (delay
-                                (map node->map
-                                     (node-list->seq (.getChildNodes n)))))
+                                       (map node->map
+                                            (node-list->seq (.getChildNodes n)))))
         m  {:node node
             :tag   (node-name node)
             :attrs (attrs node)
