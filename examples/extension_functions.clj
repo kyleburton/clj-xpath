@@ -55,7 +55,7 @@
   ;; (javax.xml.namespace.QName) and an arity.  The Clojure function
   ;; will be passed a "this" (the instance of the XPathFunction
   ;; object) and the arguments passed to the function from the xpath
-  ;; function.  This example registers regexp:match and it gets passed
+  ;; expression.  This example registers regexp:match and it gets passed
   ;; the DOM node's text() and a string (the regular expression).
   (.reset xp/*xpath-compiler*)
   (xp/register-xpath-function
