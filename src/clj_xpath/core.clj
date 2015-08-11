@@ -10,7 +10,8 @@
    [org.w3c.dom                 Document Node]
    [javax.xml.parsers           DocumentBuilderFactory]
    [javax.xml.xpath             XPathFactory XPathConstants XPathExpression]
-   [javax.xml                   XMLConstants])
+   [javax.xml                   XMLConstants]
+   [javax.xml.namespace QName])
   (:gen-class))
 
 (def ^{:dynamic true} *namespace-aware*  false)
@@ -60,14 +61,14 @@ See: format"
   "Convert a org.w3c.dom.NodeList into a clojure sequence."
   [thing]
   (cond
-    (isa? (class thing) org.w3c.dom.NodeList)
-    (dom-node-list->seq thing)
+   (isa? (class thing) org.w3c.dom.NodeList)
+   (dom-node-list->seq thing)
 
-    (isa? (class thing) org.w3c.dom.NamedNodeMap)
-    (dom-node-map->seq thing)
+   (isa? (class thing) org.w3c.dom.NamedNodeMap)
+   (dom-node-map->seq thing)
 
-    :unrecognized
-    (throw (RuntimeException. "Unknown node list object type=%s" (class thing)))))
+   :unrecognized
+   (throw (RuntimeException. "Unknown node list object type=%s" (class thing)))))
 
 
 (def ^{:dynamic true} *validation* false)
@@ -90,7 +91,7 @@ See: format"
   [^java.io.InputStream istr & [opts]]
   (let [opts        (or opts {})
         dom-factory (make-dom-factory opts)
-        builder     (.newDocumentBuilder dom-factory)
+        builder     (.newDocumentBuilder ^DocumentBuilderFactory dom-factory)
         error-h     (:error-handler opts)]
     (when error-h
       (.setErrorHandler builder error-h))
@@ -151,8 +152,8 @@ See: format"
 "
   [#^Node node]
   (let [lazy-children (fn [#^Node n] (delay
-                                       (map node->map
-                                            (node-list->seq (.getChildNodes n)))))
+                                      (map node->map
+                                           (node-list->seq (.getChildNodes n)))))
         m  {:node node
             :tag   (node-name node)
             :attrs (attrs node)
@@ -440,14 +441,14 @@ See xml->doc, and xp:compile."
     (proxy [javax.xml.namespace.NamespaceContext]
         []
       (getNamespaceURI [prefix]
-                       ;;(println (format "getNamespaceURI: %s => %s" prefix (get prefix-map prefix)))
-                       (get prefix-map prefix))
+        ;;(println (format "getNamespaceURI: %s => %s" prefix (get prefix-map prefix)))
+        (get prefix-map prefix))
       (getPrefixes [val]
-                   ;;(println (format "getPrefixes: %s" val))
-                   nil)
+        ;;(println (format "getPrefixes: %s" val))
+        nil)
       (getPrefix [uri]
-                 ;;(println (format "getPrefix: %s => %s" uri (get uri-map uri)))
-                 (get uri-map uri)))))
+        ;;(println (format "getPrefix: %s => %s" uri (get uri-map uri)))
+        (get uri-map uri)))))
 
 
 (defn with-namespace-awareness*
@@ -542,3 +543,52 @@ See xml->doc, and xp:compile."
      (javax.xml.transform.dom.DOMSource. node)
      (javax.xml.transform.stream.StreamResult. dw))
     (str dw)))
+
+(defn ->qualified-name [qname]
+  (cond
+   (isa? (class qname) QName)
+   qname
+
+   (string? qname)
+   (QName. qname)
+
+   (and (sequential? qname) (= 1 (count qname)))
+   (QName. (first qname))
+
+   (and (sequential? qname) (= 2 (count qname)))
+   (QName. (first qname) (second qname))
+
+   (and (sequential? qname) (= 3 (count qname)))
+   (QName. (nth qname 0) (nth qname 1) (nth qname 2))
+
+   :otherwise
+   (throw (RuntimeException. (format "Error: don't know how to make a QName out of: %s" qname)))))
+
+(defonce xpath-functions (atom {}))
+
+(def xpath-function-resolver
+  (reify
+    javax.xml.xpath.XPathFunctionResolver
+    (resolveFunction [this fname arity]
+      (get
+       (->>
+        @xpath-functions
+        (filter
+         (fn [[qname arities]]
+           (= qname fname)))
+        first
+        second)
+       arity))))
+
+(defn register-xpath-function [qualified-name arity f]
+  (let [qname (->qualified-name qualified-name)
+        xpfn  (reify javax.xml.xpath.XPathFunction
+                (evaluate [this args]
+                  (f this args)))]
+    (swap! xpath-functions
+           assoc-in
+           [qname arity]
+           xpfn)
+    (when (nil? (.getXPathFunctionResolver *xpath-compiler*))
+      (.setXPathFunctionResolver *xpath-compiler* xpath-function-resolver))
+    qname))

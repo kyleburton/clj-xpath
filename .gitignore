@@ -5,3 +5,4 @@ pom.xml
 .lein-failures
 target
 README.html
+*~
