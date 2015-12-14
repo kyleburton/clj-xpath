@@ -143,6 +143,19 @@
     (is (= "/labels[1]/label[2]"  (abs-path (nth children 3))))
     (is (= "/labels[1]/text()[3]" (abs-path (nth children 4))))))
 
+(def dtd-xml
+  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<!DOCTYPE eSearchResult PUBLIC \"-//NLM//DTD esearch 20060628//EN\" \"http://eutils.ncbi.nlm.nih.gov/eutils/dtd/20060628/esearch.dtd\">
+<eSearchResult><Count>21486</Count><RetMax>10</RetMax><RetStart>0</RetStart><IdList>
+<Id>26651117</Id><Id>26651111</Id><Id>26651108</Id><Id>26651106</Id>
+<Id>26651105</Id><Id>26651078</Id><Id>26651075</Id><Id>26651033</Id></IdList></eSearchResult>")
+
+(deftest test-external-dtd-skipping
+  (let [opts {:disallow-doctype-decl false}]
+    ;; should not throw
+    (is (not (false? (try (xml->doc dtd-xml opts)
+                          (catch Exception e false)))))))
+
 ;; The document soap1.xml uses 3 namepsaces.  The 3rd is implicit / blank in the SOAP Body element.
 (deftest test-with-blank-ns
   (let [xml (slurp "fixtures/soap1.xml")]
