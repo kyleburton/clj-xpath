@@ -74,6 +74,7 @@ See: format"
 (def ^{:dynamic true} *validation* false)
 
 (def disallow-doctype-decl       "http://apache.org/xml/features/disallow-doctype-decl")
+(def load-external-dtd           "http://apache.org/xml/features/nonvalidating/load-external-dtd")
 (def external-general-entities   "http://xml.org/sax/features/external-general-entities")
 (def external-parameter-entities "http://xml.org/sax/features/external-parameter-entities")
 
@@ -83,6 +84,7 @@ See: format"
     (.setValidating (:validation opts *validation*))
     (.setFeature XMLConstants/FEATURE_SECURE_PROCESSING (:feature-secure-processing   opts true))
     (.setFeature disallow-doctype-decl                  (:disallow-doctype-decl       opts true))
+    (.setFeature load-external-dtd                      (:load-external-dtd           opts false))
     (.setFeature external-general-entities              (:external-general-entities   opts false))
     (.setFeature external-parameter-entities            (:external-parameter-entities opts false))))
 
