@@ -8,19 +8,18 @@
                          :comments "Same as Clojure"}
   :repositories         {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"}
   :local-repo-classpath true
-  :plugins [[lein-release/lein-release "1.0.4"]]
-  :profiles             {:dev {:dependencies [[swank-clojure             "1.4.3"]
-                                              [midje                     "1.4.0"]
-                                              [org.clojure/clojure       "1.7.0"]
-                                              [org.clojure/tools.logging "0.3.0"]
-                                              [cider/cider-nrepl         "0.7.0"]]}
+  :main ^:skip-aot clj-xpath.nrepl
+  :plugins [[lein-release/lein-release "1.0.4"]
+            [org.clojure/tools.nrepl   "0.2.11"]]
+  :profiles             {:dev {:dependencies [[org.clojure/clojure       "1.8.0"]
+                                              [org.clojure/tools.logging "0.3.1"]
+                                              [cider/cider-nrepl         "0.10.2"]
+                                              [prismatic/schema          "1.0.5"]]}
                          ;; NB: the use of ex-info prevents 1.3 from being supported
-                         ;;:1.2 {:dependencies [[org.clojure/clojure "1.2.0"]]}
-                         ;;:1.3 {:dependencies [[org.clojure/clojure "1.3.0"]]}
-                         ;;:1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
                          :1.5 {:dependencies [[org.clojure/clojure "1.5.1"]]}
                          :1.6 {:dependencies [[org.clojure/clojure "1.6.0"]]}
-                         :1.7 {:dependencies [[org.clojure/clojure "1.7.0"]]}}
+                         :1.7 {:dependencies [[org.clojure/clojure "1.7.0"]]}
+                         :1.8 {:dependencies [[org.clojure/clojure "1.8.0"]]}}
   :aliases              {"all" ["with-profile" "1.5:1.6:1.7"]}
   :global-vars          {*warn-on-reflection* true}
-  :dependencies         [[xalan "2.7.1"]])
+  :dependencies         [[xalan "2.7.2"]])
