@@ -1,19 +1,19 @@
 <atom:feed xml:base="http://nplhost:8042/sap/opu/sdata/IWFND/RMTSAMPLEFLIGHT/"
-                  xmlns:atom="http://www.w3.org/2005/Atom"
-                  xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices"
-                  xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"
-                  xmlns:sap="http://www.sap.com/Protocols/SAPData">
+  xmlns:atom="http://www.w3.org/2005/Atom"
+  xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices"
+  xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"
+  xmlns:sap="http://www.sap.com/Protocols/SAPData">
 
-<atom:title>BookingCollection</atom:title>
-<atom:updated>2012-03-19T20:27:30Z</atom:updated>
+  <atom:title>BookingCollection</atom:title>
+  <atom:updated>2012-03-19T20:27:30Z</atom:updated>
 
-<atom:entry>
-<atom:author/>
-</atom:entry>
+  <atom:entry>
+    <atom:author/>
+  </atom:entry>
 
-<atom:entry>
-<atom:author/>
-<atom:content type="application/xml"/>
-</atom:entry>
+  <atom:entry>
+    <atom:author/>
+    <atom:content type="application/xml"/>
+  </atom:entry>
 
 </atom:feed>
