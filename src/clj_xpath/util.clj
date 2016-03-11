@@ -5,3 +5,17 @@
   `(let [~'it ~res]
      ~@body
      ~'it))
+
+
+(defn throwf
+  "Helper for throwing exceptions using a format string.  Arguments are
+
+     fmt-string
+     args...
+
+See: format"
+  [& args]
+  (throw (RuntimeException. ^String (apply format args))))
+
+
+

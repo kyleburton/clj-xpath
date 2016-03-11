@@ -1,6 +1,9 @@
 (ns clj-xpath.core
   (:require
-   [clojure.string :as str-utils])
+   [clojure.string :as str-utils]
+   [clj-xpath.util :refer [throwf]]
+   [clj-xpath.lib  :as lib]
+   [schema.core    :as s])
   (:import
    [java.io                     InputStream InputStreamReader StringReader File IOException ByteArrayInputStream]
    [org.xml.sax                 InputSource SAXException]
@@ -17,76 +20,13 @@
 (def ^{:dynamic true} *namespace-aware*  false)
 (def ^{:dynamic true :tag String} *default-encoding* "UTF-8")
 
-(defn throwf
-  "Helper for throwing exceptions using a format string.  Arguments are
-
-     fmt-string
-     args...
-
-See: format"
-  [& args]
-  (throw (RuntimeException. ^String (apply format args))))
-
-(defn logf
-  "Debugging helper: Prints to System/err using format."
-  [fmt & args]
-  (.println System/err (apply format fmt args)))
-
-(defn dom-node-map->seq
-  "Convert a org.w3c.dom.NodeList into a clojure sequence."
-  [^org.w3c.dom.NamedNodeMap node-list]
-  (loop [length (.getLength node-list)
-         idx    0
-         res    []]
-    (if (>= idx length)
-      (reverse res)
-      (recur length
-             (inc idx)
-             (cons (.item node-list idx) res)))))
-
-
-(defn dom-node-list->seq
-  "Convert a org.w3c.dom.NodeList into a clojure sequence."
-  [^org.w3c.dom.NodeList node-list]
-  (loop [length (.getLength node-list)
-         idx    0
-         res    []]
-    (if (>= idx length)
-      (reverse res)
-      (recur length
-             (inc idx)
-             (cons (.item node-list idx) res)))))
-
-(defn node-list->seq
-  "Convert a org.w3c.dom.NodeList into a clojure sequence."
-  [thing]
-  (cond
-   (isa? (class thing) org.w3c.dom.NodeList)
-   (dom-node-list->seq thing)
-
-   (isa? (class thing) org.w3c.dom.NamedNodeMap)
-   (dom-node-map->seq thing)
-
-   :unrecognized
-   (throw (RuntimeException. "Unknown node list object type=%s" (class thing)))))
-
-
 (def ^{:dynamic true} *validation* false)
 
-(def disallow-doctype-decl       "http://apache.org/xml/features/disallow-doctype-decl")
-(def load-external-dtd           "http://apache.org/xml/features/nonvalidating/load-external-dtd")
-(def external-general-entities   "http://xml.org/sax/features/external-general-entities")
-(def external-parameter-entities "http://xml.org/sax/features/external-parameter-entities")
-
-(defn make-dom-factory [opts]
-  (doto (DocumentBuilderFactory/newInstance)
-    (.setNamespaceAware *namespace-aware*)
-    (.setValidating (:validation opts *validation*))
-    (.setFeature XMLConstants/FEATURE_SECURE_PROCESSING (:feature-secure-processing   opts true))
-    (.setFeature disallow-doctype-decl                  (:disallow-doctype-decl       opts true))
-    (.setFeature load-external-dtd                      (:load-external-dtd           opts false))
-    (.setFeature external-general-entities              (:external-general-entities   opts false))
-    (.setFeature external-parameter-entities            (:external-parameter-entities opts false))))
+(s/defn make-dom-factory :- DocumentBuilderFactory [opts :- lib/Options]
+  (lib/make-dom-factory 
+   (merge 
+    {:namespace-aware *namespace-aware*}
+    opts)))
 
 (defn- input-stream->dom
   "Convert an input stream into a DOM."
@@ -127,7 +67,7 @@ See: format"
   "Extract the attributes from the node."
   [^Node nodeattrs]
   (if-let [the-attrs (.getAttributes nodeattrs)]
-    (loop [[^Node node & nodes] (node-list->seq (.getAttributes nodeattrs))
+    (loop [[^Node node & nodes] (lib/node-list->seq (.getAttributes nodeattrs))
            res {}]
       (if node
         (recur nodes (assoc res (keyword (.getNodeName node)) (.getTextContent node)))
@@ -155,7 +95,7 @@ See: format"
   [#^Node node]
   (let [lazy-children (fn [#^Node n] (delay
                                       (map node->map
-                                           (node-list->seq (.getChildNodes n)))))
+                                           (lib/node-list->seq (.getChildNodes n)))))
         m  {:node node
             :tag   (node-name node)
             :attrs (attrs node)
@@ -200,7 +140,7 @@ See xml->doc, and xp:compile."
 ;; assume a Document (or api compatible)
 (defmethod $x :default [xp-expression ^Document doc]
   (map node->map
-       (node-list->seq
+       (lib/node-list->seq
         (.evaluate ^javax.xml.xpath.XPathExpression (xp:compile xp-expression) doc XPathConstants/NODESET))))
 
 (defn summarize
@@ -431,7 +371,7 @@ See xml->doc, and xp:compile."
         m
         (xmlnsmap-from-document node)))
      (xmlnsmap-from-node node)
-     (node-list->seq (.getChildNodes node)))))
+     (lib/node-list->seq (.getChildNodes node)))))
 
 (defn nscontext
   "Create a javax.xml.namespace.NamespaceContext from the given map."

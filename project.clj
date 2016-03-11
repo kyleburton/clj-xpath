@@ -22,4 +22,7 @@
                          :1.8 {:dependencies [[org.clojure/clojure "1.8.0"]]}}
   :aliases              {"all" ["with-profile" "1.5:1.6:1.7"]}
   :global-vars          {*warn-on-reflection* true}
-  :dependencies         [[xalan "2.7.2"]])
+  :dependencies [
+    [xalan                      "2.7.2"]
+    [prismatic/schema           "0.3.1"]
+  ])
