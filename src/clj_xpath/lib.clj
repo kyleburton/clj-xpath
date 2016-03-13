@@ -11,7 +11,7 @@
    [javax.xml.validation        SchemaFactory]
    [org.w3c.dom                 Document Node]
    [javax.xml.parsers           DocumentBuilderFactory]
-   [javax.xml.xpath             XPathFactory XPathConstants XPathExpression]
+   [javax.xml.xpath             XPathFactory XPathConstants XPathExpression XPath]
    [javax.xml                   XMLConstants]
    [javax.xml.namespace QName]))
 
@@ -29,7 +29,6 @@
    (s/optional-key :external-general-entities)    s/Bool
    (s/optional-key :external-parameter-entities)  s/Bool
    (s/optional-key :namespace-aware)              s/Bool})
-
 
 (defn dom-node-map->seq
   "Convert a org.w3c.dom.NodeList into a clojure sequence."
@@ -146,7 +145,7 @@
     :attrs     map of the node's attributes
     :text      the text of the node
     :children  a lazy sequence of the node's children.
-"
+  "
   [#^Node node]
   (let [lazy-children (fn [#^Node n] (delay
                                       (map node->map
@@ -165,7 +164,7 @@
   "Compile an XPath expression.  If the argument is already a compiled XPath expression, it is returned as-is."
   (fn [xp-compiler xpexpr] (class xpexpr)))
 
-(defmethod xp:compile String          [xp-compiler xpexpr] (.compile xp-compiler xpexpr))
+(defmethod xp:compile String          [xp-compiler xpexpr] (.compile ^XPath xp-compiler xpexpr))
 (defmethod xp:compile XPathExpression [xp-compiler xpexpr] xpexpr)
 (defmethod xp:compile :default        [xp-compiler xpexpr]
   (throwf "xp:compile: don't know how to compile xpath expr of type:%s '%s'" (class xpexpr) xpexpr))
@@ -177,7 +176,7 @@
   (fn [xp-compiler xp xml-thing & [opts]] (class xml-thing)))
 
 (defmethod $x String               [xp-compiler xp ^String xml & [opts]]
-  ($x xp-compiler xp (xml->doc (.getBytes xml (:default-encoding opts "UTF-8")) opts) opts))
+  ($x xp-compiler xp (xml->doc (.getBytes ^String xml ^String (:default-encoding opts "UTF-8")) opts) opts))
 
 (defmethod $x (Class/forName "[B") [xp-compiler xp bytes & [opts]]
   ($x xp-compiler xp (xml->doc bytes opts) opts))
@@ -548,7 +547,7 @@
 
 (defonce xpath-functions-by-xp-compiler (atom {}))
 
-(defn register-xpath-function [xp-compiler qualified-name arity f]
+(defn register-xpath-function [^XPath xp-compiler qualified-name arity f]
   (let [qname     (->qualified-name qualified-name)
         xpfn      (reify javax.xml.xpath.XPathFunction
                     (evaluate [this args]
@@ -575,5 +574,14 @@
                            first
                            second)
                           arity)))]
-        (.setXPathFunctionResolver xp-compiler resolver)))
+        (.setXPathFunctionResolver ^XPath xp-compiler resolver)))
     qname))
+
+(s/defn make-xpath-compiler [opts :- Options]
+  (let [fact (org.apache.xpath.jaxp.XPathFactoryImpl.)
+        xp-compiler (.newXPath ^org.apache.xpath.jaxp.XPathFactoryImpl fact)]
+    xp-compiler))
+
+(defn set-ns-context! [xp-compiler context-map]
+  (.setNamespaceContext ^XPath xp-compiler (nscontext context-map))
+  xp-compiler)
