@@ -107,7 +107,7 @@
   "
   (fn [thing & [opts]] (class thing)))
 
-(defmethod xml->doc String               [thing & [opts]] (xml-bytes->dom (.getBytes ^String thing ^String (:default-encoding opts "YTF-8")) opts))
+(defmethod xml->doc String               [thing & [opts]] (xml-bytes->dom (.getBytes ^String thing ^String (:default-encoding opts "UTF-8")) opts))
 (defmethod xml->doc (Class/forName "[B") [thing & [opts]] (xml-bytes->dom thing opts))
 (defmethod xml->doc InputStream          [thing & [opts]] (input-stream->dom thing opts))
 (defmethod xml->doc org.w3c.dom.Document [thing & [opts]] thing)

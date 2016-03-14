@@ -38,7 +38,7 @@
 (defn ex1-lazy-is-ok-for-lib []
   (let [opts        {:namespace-aware  true
                      :default-encoding "UTF-8"}
-        xp-compiler (lib/make-xpath-factory opts)
+        xp-compiler (lib/make-xpath-compiler opts)
         xml         (:namespaces xml-fixtures)
         xmlnsmap    (lib/xmlnsmap-from-root-node xp-compiler xml opts)]
     (lib/set-ns-context! xp-compiler xmlnsmap)
