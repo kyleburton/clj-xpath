@@ -1,7 +1,6 @@
 (defproject com.github.kyleburton/clj-xpath "1.4.6"
   :description          "Simplified XPath from Clojure."
   :url                  "http://github.com/kyleburton/clj-xpath"
-  :lein-release         {:deploy-via :clojars}
   :license              {:name "Eclipse Public License - v 1.0"
                          :url "http://www.eclipse.org/legal/epl-v10.html"
                          :distribution :repo
@@ -9,8 +8,7 @@
   :repositories         {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"}
   :local-repo-classpath true
   :main ^:skip-aot clj-xpath.nrepl
-  :plugins [[lein-release/lein-release "1.0.4"]
-            [org.clojure/tools.nrepl   "0.2.11"]]
+  :plugins [[org.clojure/tools.nrepl   "0.2.11"]]
   :profiles             {:dev {:dependencies [[org.clojure/clojure       "1.8.0"]
                                               [org.clojure/tools.logging "0.3.1"]
                                               [cider/cider-nrepl         "0.10.2"]
