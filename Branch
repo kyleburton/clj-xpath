@@ -1,0 +1,14 @@
+This branch is for implementing a solution for:
+
+  https://github.com/kyleburton/clj-xpath/issues/21
+
+  Split clj-xpath.core into 2 parts:
+  
+  clj-xpath.lib
+  clj-xpath.core
+
+  lib will use no dynamic vars, it will use explicitly passed positional
+  parameters for concerns such as the xpath factory and xmll namespace support.
+  
+  core will maintain compatibility with the exiting API, using dynamic
+  variables, calling into lib passing the proper positional parameters.
