@@ -6,6 +6,7 @@
                          :distribution :repo
                          :comments "Same as Clojure"}
   :repositories         {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"}
+  :deploy-repositories  [["releases" :clojars]]
   :local-repo-classpath true
   ;; :main ^:skip-aot clj-xpath.nrepl
   :plugins [[org.clojure/tools.nrepl   "0.2.11"]]
