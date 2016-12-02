@@ -7,7 +7,7 @@
                          :comments "Same as Clojure"}
   :repositories         {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"}
   :local-repo-classpath true
-  :main ^:skip-aot clj-xpath.nrepl
+  ;; :main ^:skip-aot clj-xpath.nrepl
   :plugins [[org.clojure/tools.nrepl   "0.2.11"]]
   :profiles             {:dev {:dependencies [[org.clojure/clojure       "1.8.0"]
                                               [org.clojure/tools.logging "0.3.1"]
@@ -22,5 +22,5 @@
   :global-vars          {*warn-on-reflection* true}
   :dependencies [
     [xalan                      "2.7.2"]
-    [prismatic/schema           "0.3.1"]
+    [prismatic/schema           "1.1.3"]
   ])
