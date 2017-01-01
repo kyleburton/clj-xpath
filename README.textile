@@ -151,7 +151,11 @@ These two examples assume the following XML document:
 
 h2. Changes
 
-h5. Version 1.4.3 : Sat Sep 14 10:11:56 EDT 2013
+h5. Version 1.4.11 : Sun Jan  1 09:56:21 PST 2017
+
+* Merged "#34 implement abs-path for attribute elements":https://github.com/kyleburton/clj-xpath/pull/34
+
+h5. Version 1.4.3  : Sat Sep 14 10:11:56 EDT 2013
 
 * Compatibility with Clojure 1.2, 1.3, 1.4, 1.5 and 1.6-SNAPSHOT
 
