@@ -9,7 +9,7 @@
    [javax.xml.transform         Source]
    [javax.xml.transform.stream  StreamSource]
    [javax.xml.validation        SchemaFactory]
-   [org.w3c.dom                 Document Node]
+   [org.w3c.dom                 Document Node Attr]
    [javax.xml.parsers           DocumentBuilderFactory]
    [javax.xml.xpath             XPathFactory XPathConstants XPathExpression XPath]
    [javax.xml                   XMLConstants]
@@ -485,8 +485,10 @@
         step (str name "[" posn "]")]
     (walk-back node step)))
 
-(defmethod abs-path* Node/ATTRIBUTE_NODE [node]
-  (throw (RuntimeException. "Not implemented yet.")))
+(defmethod abs-path* Node/ATTRIBUTE_NODE [^org.w3c.dom.Attr node]
+  (let [owner-path (abs-path* (.getOwnerElement node))
+        attr-name (.getNodeName node)]
+    (str owner-path "/@" attr-name)))
 
 (defn- node-type->xpath-function [nt]
   ({Node/TEXT_NODE                   "text"
