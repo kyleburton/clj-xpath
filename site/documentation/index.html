@@ -23,7 +23,7 @@
           <h1 id="project_title"><a href="/clj-xpath/">clj-xpath</a></h1>
           <h2 id="project_tagline">Simplified XPath for Clojure</h2>
 
-          
+
 
         </header>
     </div>
@@ -31,7 +31,7 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
 
-      
+
 
       <section id="main_content" class="inner">
       <h1>clj-xpath <span class="caps">API</span> Reference</h1>
@@ -77,7 +77,7 @@
 <h3><code>(abs-path node) =&gt; xpath-expression (String)</code></h3>
 <p>Given a node extracted from a document (by any of the <code>$x</code> functions), returns an XPath expression (a String) that will locate the node in the document.  This may not be the xpath that was used to extract the node, but will uniquely identify the node in the document.</p>
 <h2>Precompliation of XPath Expressions</h2>
-<h3><code>($x:compile xpexpr) =&gt; javax.xml.xpath.XPathExpression</code></h3>
+<h3><code>($xp:compile xpexpr) =&gt; javax.xml.xpath.XPathExpression</code></h3>
 <p>Pre-compiles the xpath expression.  In cases of repeated execution of an xpath expression this will improve performance.</p>
 <h2>Validation</h2>
 <p>Validation is off by default.  Validation is controlled by optional parameters passed to <code>xml-bytes-&gt;dom</code>, or by overriding the dynamic var <code>*validation*</code> to true:</p>
@@ -96,11 +96,11 @@
 
   <span class="nt">&lt;atom:title&gt;</span>BookingCollection<span class="nt">&lt;/atom:title&gt;</span>
   <span class="nt">&lt;atom:updated&gt;</span>2012-03-19T20:27:30Z<span class="nt">&lt;/atom:updated&gt;</span>
-  
+
   <span class="nt">&lt;atom:entry&gt;</span>
     <span class="nt">&lt;atom:author/&gt;</span>
   <span class="nt">&lt;/atom:entry&gt;</span>
-  
+
   <span class="nt">&lt;atom:entry&gt;</span>
     <span class="nt">&lt;atom:author/&gt;</span>
     <span class="nt">&lt;atom:content</span> <span class="na">type=</span><span class="s">&quot;application/xml&quot;</span><span class="nt">/&gt;</span>
