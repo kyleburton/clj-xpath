@@ -70,7 +70,7 @@ Given a node extracted from a document (by any of the @$x@ functions), returns a
 
 h2. Precompliation of XPath Expressions
 
-h3. @($xp:compile xpexpr) => javax.xml.xpath.XPathExpression@
+h3. @(xp:compile xpexpr) => javax.xml.xpath.XPathExpression@
 
 Pre-compiles the xpath expression.  In cases of repeated execution of an xpath expression this will improve performance.
 
