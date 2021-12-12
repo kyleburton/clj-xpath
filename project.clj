@@ -20,7 +20,7 @@
   :aliases              {"all" ["with-profile" "1.5:1.6:1.7"]}
   :global-vars          {*warn-on-reflection* true}
   :dependencies [
-    [org.clojure/tools.logging  "0.3.1"]
+    [org.clojure/tools.logging  "1.2.1"]
     [xalan                      "2.7.2"]
     [prismatic/schema           "1.1.3"]
   ])
