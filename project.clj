@@ -1,4 +1,4 @@
-(defproject com.github.kyleburton/clj-xpath "1.4.12-SNAPSHOT"
+(defproject com.github.kyleburton/clj-xpath "1.4.12"
   :description          "Simplified XPath from Clojure."
   :url                  "http://github.com/kyleburton/clj-xpath"
   :license              {:name "Eclipse Public License - v 1.0"
