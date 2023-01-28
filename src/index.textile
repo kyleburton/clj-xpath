@@ -18,6 +18,12 @@ For Clojure, add the following to your @project.clj@ file:
  [com.github.kyleburton/clj-xpath "1.4.3"]
 {% endhighlight %}
 
+Or the following to your @deps.edn@ file:
+
+{% highlight clojure %}
+ com.github.kyleburton/clj-xpath {:mvn/version "1.4.3"}
+{% endhighlight %}
+
 For maven, add the following dependency to your @pom.xml@:
 
 {% highlight xml %}
