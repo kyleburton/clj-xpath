@@ -1,32 +1,21 @@
 (ns clj-xpath.core
   (:require
-   [clojure.string :as str-utils]
-   [clj-xpath.util :refer [throwf]]
    [clj-xpath.lib  :as lib]
    [schema.core    :as s])
   (:import
-   [java.io                     InputStream InputStreamReader StringReader File IOException ByteArrayInputStream]
-   [org.xml.sax                 InputSource SAXException]
-   [javax.xml.transform         Source]
-   [javax.xml.transform.stream  StreamSource]
-   [javax.xml.validation        SchemaFactory]
-   [org.w3c.dom                 Document Node]
-   [javax.xml.parsers           DocumentBuilderFactory]
-   [javax.xml.xpath             XPathFactory XPathConstants XPathExpression]
-   [javax.xml                   XMLConstants]
-   [javax.xml.namespace QName])
+   [javax.xml.parsers           DocumentBuilderFactory])
   (:gen-class))
 
 (def ^{:dynamic true} *namespace-aware*  false)
 (def ^{:dynamic true :tag String} *default-encoding* "UTF-8")
 (def ^{:dynamic true} *validation* false)
-(def ^{:dynamic true :tag javax.xml.xpath.XPathFactory} *xpath-factory* (org.apache.xpath.jaxp.XPathFactoryImpl.))
+(def ^{:dynamic true :tag javax.xml.xpath.XPathFactory} *xpath-factory* (javax.xml.xpath.XPathFactory/newInstance))
 (def ^{:dynamic true :tag javax.xml.xpath.XPath} *xpath-compiler* (.newXPath *xpath-factory*))
 
 (def dom-node-list->seq lib/dom-node-list->seq)
 
 (s/defn merge-dynvars-with-opts :- lib/Options [opts :- (s/maybe lib/Options)]
-  (merge 
+  (merge
    {:namespace-aware  *namespace-aware*
     :default-encoding *default-encoding*
     :validation       *validation*}

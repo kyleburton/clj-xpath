@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -eEuo pipefail
+
+########################################
+# configuration
+NREPL_PORT=""
+
+########################################
+# helper functdions
+function nrepl-port () {
+    if [[ -n "$NREPL_PORT" ]]; then
+        echo "$NREPL_PORT"
+        return 0
+    fi
+
+    if [[ ! -e .config.json ]]; then
+        >&2 echo "Error: .config.json file does not exist"
+        return 1
+    fi
+
+    NREPL_PORT="$(grep "port" .config.json  | cut -f2- -d: | cut -f2- -d: | cut -f2 -d\")"
+
+    if [[ -z "$NREPL_PORT" ]]; then
+        >&2 echo "Error: unable to find nrepl port in .config.json file"
+        return 1
+    fi
+
+    echo "$NREPL_PORT"
+}
+
+function init () {
+    NREPL_PORT="$(nrepl-port)"
+}
+
+########################################
+# project tasks
+bake_task config "show project configuration"
+function config () {
+    init
+    echo "NREPL_PORT=$NREPL_PORT"
+}
+
+
+bake_task run-tests "run all tests"
+function run-tests () {
+    lein all test
+}
+
+bake_task nrepl "run cider nrepl, on port=$(nrepl-port)"
+function nrepl () {
+    init
+    lein with-profile dev run -m clj-xpath.nrepl -- --port="$NREPL_PORT"
+}

@@ -4,15 +4,11 @@
    [clj-xpath.util :refer [throwf]]
    [schema.core    :as s])
   (:import
-   [java.io                     InputStream InputStreamReader StringReader File IOException ByteArrayInputStream]
-   [org.xml.sax                 InputSource SAXException]
-   [javax.xml.transform         Source]
-   [javax.xml.transform.stream  StreamSource]
-   [javax.xml.validation        SchemaFactory]
-   [org.w3c.dom                 Document Node Attr]
-   [javax.xml.parsers           DocumentBuilderFactory]
-   [javax.xml.xpath             XPathFactory XPathConstants XPathExpression XPath]
-   [javax.xml                   XMLConstants]
+   [java.io             InputStream ByteArrayInputStream]
+   [org.w3c.dom         Document Node]
+   [javax.xml.parsers   DocumentBuilderFactory]
+   [javax.xml.xpath     XPathConstants XPathExpression XPath]
+   [javax.xml           XMLConstants]
    [javax.xml.namespace QName]))
 
 (def disallow-doctype-decl       "http://apache.org/xml/features/disallow-doctype-decl")
@@ -65,7 +61,7 @@
     (isa? (class thing) org.w3c.dom.NamedNodeMap)
     (dom-node-map->seq thing)
 
-    :unrecognized
+    :else
     (throw (RuntimeException. "Unknown node list object type=%s" (class thing)))))
 
 
@@ -105,14 +101,14 @@
     org.w3c.dom.Document
     org.w3c.dom.Node
   "
-  (fn [thing & [opts]] (class thing)))
+  (fn [thing & [_opts]] (class thing)))
 
-(defmethod xml->doc String               [thing & [opts]] (xml-bytes->dom (.getBytes ^String thing ^String (:default-encoding opts "UTF-8")) opts))
-(defmethod xml->doc (Class/forName "[B") [thing & [opts]] (xml-bytes->dom thing opts))
-(defmethod xml->doc InputStream          [thing & [opts]] (input-stream->dom thing opts))
-(defmethod xml->doc org.w3c.dom.Document [thing & [opts]] thing)
-(defmethod xml->doc Node                 [thing & [opts]] thing)
-(defmethod xml->doc :default             [thing & [opts]]
+(defmethod xml->doc String               [thing & [opts]]  (xml-bytes->dom (.getBytes ^String thing ^String (:default-encoding opts "UTF-8")) opts))
+(defmethod xml->doc (Class/forName "[B") [thing & [opts]]  (xml-bytes->dom thing opts))
+(defmethod xml->doc InputStream          [thing & [opts]]  (input-stream->dom thing opts))
+(defmethod xml->doc org.w3c.dom.Document [thing & [_opts]] thing)
+(defmethod xml->doc Node                 [thing & [_opts]] thing)
+(defmethod xml->doc :default             [thing & [_opts]]
   (throwf "Error, don't know how to build a doc out of '%s' of class %s" thing (class thing)))
 
 
@@ -120,7 +116,7 @@
   "Extract the attributes from the node."
   [^Node nodeattrs]
   (if-let [the-attrs (.getAttributes nodeattrs)]
-    (loop [[^Node node & nodes] (node-list->seq (.getAttributes nodeattrs))
+    (loop [[^Node node & nodes] (node-list->seq the-attrs)
            res {}]
       (if node
         (recur nodes (assoc res (keyword (.getNodeName node)) (.getTextContent node)))
@@ -162,18 +158,18 @@
 
 (defmulti xp:compile
   "Compile an XPath expression.  If the argument is already a compiled XPath expression, it is returned as-is."
-  (fn [xp-compiler xpexpr] (class xpexpr)))
+  (fn [_xp-compiler xpexpr] (class xpexpr)))
 
-(defmethod xp:compile String          [xp-compiler xpexpr] (.compile ^XPath xp-compiler xpexpr))
-(defmethod xp:compile XPathExpression [xp-compiler xpexpr] xpexpr)
-(defmethod xp:compile :default        [xp-compiler xpexpr]
+(defmethod xp:compile String          [xp-compiler xpexpr]  (.compile ^XPath xp-compiler xpexpr))
+(defmethod xp:compile XPathExpression [_xp-compiler xpexpr] xpexpr)
+(defmethod xp:compile :default        [_xp-compiler xpexpr]
   (throwf "xp:compile: don't know how to compile xpath expr of type:%s '%s'" (class xpexpr) xpexpr))
 
 
 (defmulti $x
   "Perform an xpath query on the given XML document which may be a String, byte array, or InputStream.
   See xml->doc, and xp:compile."
-  (fn [xp-compiler xp xml-thing & [opts]] (class xml-thing)))
+  (fn [_xp-compiler _xp xml-thing & [_opts]] (class xml-thing)))
 
 (defmethod $x String               [xp-compiler xp ^String xml & [opts]]
   ($x xp-compiler xp (xml->doc (.getBytes ^String xml ^String (:default-encoding opts "UTF-8")) opts) opts))
@@ -188,7 +184,7 @@
   ($x xp-compiler xp (:node xml) opts))
 
 ;; assume a Document (or api compatible)
-(defmethod $x :default [xp-compiler xp-expression ^Document doc & [opts]]
+(defmethod $x :default [xp-compiler xp-expression ^Document doc & [_opts]]
   (map node->map
        (node-list->seq
         (.evaluate ^javax.xml.xpath.XPathExpression (xp:compile xp-compiler xp-expression) doc XPathConstants/NODESET))))
@@ -211,7 +207,7 @@
   "Perform an xpath search, resulting in zero or one node.  Return only the tag name."
   [xp-compiler xp xml & [opts]]
   (let [res ($x:tag* xp-compiler xp xml opts)]
-    (if (next res)
+    (when (next res)
       (throwf "Error, more than 1 result (%d) from xml(%s) for xpath(%s)"
               (count res)
               (summarize xml 10)
@@ -222,17 +218,18 @@
   "Perform an xpath search, resulting in one or more nodes.  Return only the tag name."
   [xp-compiler xp xml & [opts]]
   (let [res ($x:tag* xp-compiler xp xml opts)]
-    (if (< (count res) 1)
+    (when (< (count res) 1)
       (throwf "Error, less than 1 result (%d) from xml(%s) for xpath(%s)"
               (count res)
               (summarize xml 10)
               xp))
     res))
 
-(defn $x:tag [xp-compiler xp xml & [opts]]
+(defn $x:tag
   "Perform an xpath search, resulting in one and only one node.  Return only the tag name."
+  [xp-compiler xp xml & [opts]]
   (let [res ($x:tag* xp-compiler xp xml opts)]
-    (if (not (= 1 (count res)))
+    (when (not (= 1 (count res)))
       (throwf "Error, more (or less) than 1 result (%d) from xml(%s) for xpath(%s)"
               (count res)
               (summarize xml 10)
@@ -249,7 +246,7 @@
   "Perform an xpath search, resulting in zero or one node.  Return only the node's text."
   [xp-compiler xp xml & [opts]]
   (let [res ($x:text* xp-compiler xp xml opts)]
-    (if (next res)
+    (when (next res)
       (throwf "Error, more than 1 result (%d) from xml(%s) for xpath(%s)"
               (count res)
               (summarize xml 10)
@@ -260,7 +257,7 @@
   "Perform an xpath search, resulting in one or more nodes.  Return only each the node's text."
   [xp-compiler xp xml & [opts]]
   (let [res ($x:text* xp-compiler xp xml opts)]
-    (if (< (count res) 1)
+    (when (< (count res) 1)
       (throwf "Error, less than 1 result (%d) from xml(%s) for xpath(%s)"
               (count res)
               (summarize xml 10)
@@ -271,7 +268,7 @@
   "Perform an xpath search, resulting in one and only one node.  Return only the node's text."
   [xp-compiler xp xml & [opts]]
   (let [res ($x:text* xp-compiler xp xml opts)]
-    (if (not (= 1 (count res)))
+    (when (not (= 1 (count res)))
       (throwf "Error, more (or less) than 1 result (%d) from xml(%s) for xpath(%s)"
               (count res)
               (summarize xml 10)
@@ -291,7 +288,7 @@
   "Perform an xpath search, resulting in zero or one node.  Return only the node's attrs."
   [xp-compiler xp xml & [opts]]
   (let [res (map attrs (map :node ($x xp-compiler xp xml opts)))]
-    (if (next res)
+    (when (next res)
       (throwf "Error, more than 1 result (%d) from xml(%s) for xpath(%s)"
               (count res)
               (summarize xml 10)
@@ -303,7 +300,7 @@
   "Perform an xpath search, resulting in one or more nodes.  Return only each the node's attrs."
   [xp-compiler xp xml & [opts]]
   (let [res (map attrs (map :node ($x xp-compiler xp xml opts)))]
-    (if (< (count res) 1)
+    (when (< (count res) 1)
       (throwf "Error, less than 1 result (%d) from xml(%s) for xpath(%s)"
               (count res)
               (summarize xml 10)
@@ -315,7 +312,7 @@
   "Perform an xpath search, resulting in one and only one node.  Return only the node's attrs."
   [xp-compiler xp xml & [opts]]
   (let [res (map attrs (map :node ($x xp-compiler xp xml opts)))]
-    (if (not (= 1 (count res)))
+    (when (not (= 1 (count res)))
       (throwf "Error, more (or less) than 1 result (%d) from xml(%s) for xpath(%s)"
               (count res)
               (summarize xml 10)
@@ -332,7 +329,7 @@
   "Perform an xpath search, resulting in zero or one node.  Returns the node."
   [xp-compiler xp xml & [opts]]
   (let [res ($x:node* xp-compiler xp xml opts)]
-    (if (next res)
+    (when (next res)
       (throwf "Error, more than 1 result (%d) from xml(%s) for xpath(%s)"
               (count res)
               (summarize xml 10)
@@ -343,7 +340,7 @@
   "Perform an xpath search, resulting in one or more nodes.  Returns the nodes."
   [xp-compiler xp xml & [opts]]
   (let [res ($x:node* xp-compiler xp xml opts)]
-    (if (< (count res) 1)
+    (when (< (count res) 1)
       (throwf "Error, less than 1 result (%d) from xml(%s) for xpath(%s)"
               (count res)
               (summarize xml 10)
@@ -355,7 +352,7 @@
   "Perform an xpath search, resulting in one and only one node.  Returns the node."
   [xp-compiler xp xml & [opts]]
   (let [res ($x:node* xp-compiler xp xml opts)]
-    (if (not (= 1 (count res)))
+    (when (not (= 1 (count res)))
       (throwf "Error, more (or less) than 1 result (%d) from xml(%s) for xpath(%s)"
               (count res)
               (summarize xml 10)
@@ -365,7 +362,7 @@
 
 (defmulti format-tag
   "Helper for generating XML (mostly used by the test suite)."
-  (fn [arg & [with-attrs]] (class arg)))
+  (fn [arg & [_with-attrs]] (class arg)))
 
 (defn format-tag-seq
   "Helper for generating XML (mostly used by the test suite)."
@@ -440,26 +437,11 @@
     (proxy [javax.xml.namespace.NamespaceContext]
         []
       (getNamespaceURI [prefix]
-        ;;(println (format "getNamespaceURI: %s => %s" prefix (get prefix-map prefix)))
         (get prefix-map prefix))
       (getPrefixes [val]
-        ;;(println (format "getPrefixes: %s" val))
         nil)
       (getPrefix [uri]
-        ;;(println (format "getPrefix: %s => %s" uri (get uri-map uri)))
         (get uri-map uri)))))
-
-;; NB: these macros and helpers specifically deal with the dynamic
-;; vars, I don't think they belong in the lib namespace
-
-;; with-namespace-awareness*
-;; with-namespace-awareness
-;; set-namespace-context!
-;; with-namespace-context*
-;; with-namespace-context
-
-
-
 
 (defmulti abs-path*
   "Determine the absolute path to node."
@@ -477,7 +459,6 @@
         posn (count (->> node
                          (iterate #(.getPreviousSibling ^org.w3c.dom.Element %))
                          (take-while boolean)
-                         ;; (filter #(and (= Node/ELEMENT_NODE (.getNodeType ^Node %)) (= name (.getTagName ^Node %))))
                          (filter (fn [^Node node]
                                    (and (= Node/ELEMENT_NODE (.getNodeType node))
                                         (= name (.getTagName ^org.w3c.dom.Element node)))))
@@ -504,7 +485,7 @@
         step (str (node-type->xpath-function nt) "()[" posn "]")]
     (walk-back node step)))
 
-(defmethod abs-path* Node/DOCUMENT_NODE [node] "")
+(defmethod abs-path* Node/DOCUMENT_NODE [_node] "")
 
 (defn abs-path
   "Determine an absolute xpath expression that locates this node inside the enclosing document.
@@ -543,7 +524,7 @@
     (and (sequential? qname) (= 3 (count qname)))
     (QName. (nth qname 0) (nth qname 1) (nth qname 2))
 
-    :otherwise
+    :else
     (throw (RuntimeException. (format "Error: don't know how to make a QName out of: %s" qname)))))
 
 
@@ -566,12 +547,12 @@
     (when (nil? (.getXPathFunctionResolver xp-compiler))
       (let [resolver (reify
                        javax.xml.xpath.XPathFunctionResolver
-                       (resolveFunction [this fname arity]
+                       (resolveFunction [_this fname arity]
                          (get
                           (->>
                            @fmap-atom
                            (filter
-                            (fn [[qname arities]]
+                            (fn [[qname _arities]]
                               (= qname fname)))
                            first
                            second)
@@ -579,9 +560,9 @@
         (.setXPathFunctionResolver ^XPath xp-compiler resolver)))
     qname))
 
-(s/defn make-xpath-compiler [opts :- Options]
-  (let [fact (org.apache.xpath.jaxp.XPathFactoryImpl.)
-        xp-compiler (.newXPath ^org.apache.xpath.jaxp.XPathFactoryImpl fact)]
+(s/defn make-xpath-compiler [_opts :- Options]
+  (let [fact (javax.xml.xpath.XPathFactory/newInstance)
+        xp-compiler (.newXPath fact)]
     xp-compiler))
 
 (defn set-ns-context! [xp-compiler context-map]
