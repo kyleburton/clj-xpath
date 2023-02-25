@@ -1,8 +1,8 @@
-![latest version](http://clojars.org/com.github.kyleburton/clj-xpath/latest-version.svg!:http://clojars.org/com.github.kyleburton/clj-xpath)
+![lhttp://clojars.org/com.github.kyleburton/clj-xpath](http://clojars.org/com.github.kyleburton/clj-xpath/latest-version.svg!)
 
 # Overview
 
-[clj-xpath](http://kyleburton.github.io/clj-xpath/site/ is a library that makes it easier to work with XPath from Clojure.)
+[clj-xpath](http://kyleburton.github.io/clj-xpath/site/) is a library that makes it easier to work with XPath from Clojure.
 
 ## [Documentation](http://kyleburton.github.io/clj-xpath/site/)
 
@@ -17,12 +17,12 @@ Simplified XPath Library for Clojure.  XML Parsers and an XPath implementation n
 
 The main functions in the library are `$x` and those named with a prefix of `$x:` (eg: `$x:text`).  The rationale for choosing `$x` as a name was based on the FireBug xpath function and it being a short and uncommon name.  These xpath functions all take the xpath expression to be executed and an XML document.  They attempt to be flexible with respect to the form of the XML document may represent.  If it is a string it is treated as XML, if a byte array it is used directly, if already a Document or Node (from org.w3c.dom) they are used as-is.
 
-There are four forms of most of the core functions, each with a different suffix borrowed from regular expression syntax: none, &#42; + and ?.  For example, @$x:tag@ has the following four implementations:
+There are four forms of most of the core functions, each with a different suffix borrowed from regular expression syntax: none, &#42; + and ?.  For example, `$x:tag` has the following four implementations:
 
-* @($x:tag  "//books")@: '1 and only 1', returns the single node found, throwing an exception if none or more than 1 are found.
-* @($x:tag? "//books")@: '0 or 1', returns the single node found or nil, throwing an exception if more than 1 are found.
-* @($x:tag* "//book")@: '0 or more', returns a sequence of the nodes found (which may be empty)
-* @($x:tag+ "//book")@: '1 or more'returns a sequence of the nodes found, throwing an exception if none are found
+* `($x:tag  "//books")`: '1 and only 1', returns the single node found, throwing an exception if none or more than 1 are found.
+* `($x:tag? "//books")`: '0 or 1', returns the single node found or nil, throwing an exception if more than 1 are found.
+* `($x:tag* "//book")`: '0 or more', returns a sequence of the nodes found (which may be empty)
+* `($x:tag+ "//book")`: '1 or more'returns a sequence of the nodes found, throwing an exception if none are found
 
 If you are interested in the entire node found by the XPath expressions and not just in particular aspects the node (tag, attributes, text content), `$x` function returns a map containing the XML tag (as a symbol), dom Node, the text (as a string), and a map of the attributes where the keys have been converted into keywords and the values remain Strings.
 
@@ -94,7 +94,7 @@ Pre-compiles the xpath expression.  In cases of repeated execution of the xpath 
 
 ## Validation
 
-Validation now off by default.  Validation is controlled by optional parameters passed to @xml-bytes->dom@, or by overriding the atom @*validation*@ to false:
+Validation now off by default.  Validation is controlled by optional parameters passed to `xml-bytes->dom`, or by overriding the atom `*validation*` to false:
 
 ```clojure
   (ns your.namespace
@@ -182,7 +182,7 @@ Changed project group from org.clojars.kyleburton to com.github.kyleburton.
 
 ##### Version 1.4.0 : Tue Dec 18 15:10:19 EST 2012
 
-* @:children@ lazy seq of a Node's children added by mtnygard
+* `:children` lazy seq of a Node's children added by mtnygard
 * idiomatic use of next
 
 ## Hacking
