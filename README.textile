@@ -187,7 +187,7 @@ h5. Version 1.4.0 : Tue Dec 18 15:10:19 EST 2012
 
 h2. Hacking
 
-```bash
+```console
 # to run an nrepl that you can connect to with `M-x cider-connect-clj`:
 
 # if you have bake installed
