@@ -151,7 +151,7 @@ These two examples assume the following XML document:
 
 ## Changes
 
-##### Version 1.4.13-SNAPSHOT :
+##### Version 1.4.13 : Sat Feb 25 12:37:09 2023 -0800
 
 * fixes #36 | Remove Apache Xalan dependency, no longer necessary for recent Java versions (from 7 onward)
 * drop support for clojure 1.6 and below
