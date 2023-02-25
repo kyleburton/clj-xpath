@@ -197,6 +197,39 @@ $ bake nrepl
 $ lein with-profile dev run -m clj-xpath.nrepl
 ```
 
+h2. Deploying
+
+* https://github.com/clojars/clojars-web/wiki/Pushing
+* https://github.com/technomancy/leiningen/blob/master/doc/DEPLOY.md#authentication
+* https://github.com/clojars/clojars-web/wiki/Deploy-Tokens
+
+Create `~/.lein/credentials.clj`
+
+```clojure
+{#"https://repo.clojars.org"
+ {:username "<<clojars-user-name>>" :password "CLOJARS_<<deploy-token>>"}}
+```
+
+Your clojars deploy tokens are managed at https://clojars.org/tokens
+
+Encrypt it:
+```console
+$ gpg --default-recipient-self -e ~/.lein/credentials.clj > ~/.lein/credentials.clj.gpg
+```
+
+Verify
+
+```console
+$ gpg --decrypt ~/.lein/credentials.clj.gpg
+```
+
+Deploy
+
+```console
+$ lein deploy clojars
+$ lein release
+```
+
 h2. Authors
 
 * Kyle Burton <kyle.burton@gmail.com>
