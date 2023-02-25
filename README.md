@@ -1,21 +1,21 @@
-!http://clojars.org/com.github.kyleburton/clj-xpath/latest-version.svg!:http://clojars.org/com.github.kyleburton/clj-xpath
+![latest version](http://clojars.org/com.github.kyleburton/clj-xpath/latest-version.svg!:http://clojars.org/com.github.kyleburton/clj-xpath)
 
-h1. Overview
+# Overview
 
-"clj-xpath":http://kyleburton.github.io/clj-xpath/site/ is a library that makes it easier to work with XPath from Clojure.
+[clj-xpath](http://kyleburton.github.io/clj-xpath/site/ is a library that makes it easier to work with XPath from Clojure.)
 
-h2. "Documentation":http://kyleburton.github.io/clj-xpath/site/
+## [Documentation](http://kyleburton.github.io/clj-xpath/site/)
 
-Documentation is available "here":http://kyleburton.github.io/clj-xpath/site/
+Documentation is available on [GH Pages for clj-xpath](http://kyleburton.github.io/clj-xpath/site/)
 
-h2. Description
+## Description
 
 Simplified XPath Library for Clojure.  XML Parsers and an XPath implementation now comes with Java 6, though using the api directly can be verbose and confusing.  This library provides a thin layer around basic parsing and XPath interaction for common use cases.  I have personally found the ability to interactively tweak my xpath expressions to be a great productivity boost - even using this library only for that has helped me in my learning of and using xpath.  I hope you find it useful and would love to hear your feedback and suggestions.
 
 
-h2. Usage
+## Usage
 
-The main functions in the library are <code>$x</code> and those named with a prefix of <code>$x:</code> (eg: <code>$x:text</code>).  The rationale for choosing <code>$x</code> as a name was based on the FireBug xpath function and it being a short and uncommon name.  These xpath functions all take the xpath expression to be executed and an XML document.  They attempt to be flexible with respect to the form of the XML document may represent.  If it is a string it is treated as XML, if a byte array it is used directly, if already a Document or Node (from org.w3c.dom) they are used as-is.
+The main functions in the library are `$x` and those named with a prefix of `$x:` (eg: `$x:text`).  The rationale for choosing `$x` as a name was based on the FireBug xpath function and it being a short and uncommon name.  These xpath functions all take the xpath expression to be executed and an XML document.  They attempt to be flexible with respect to the form of the XML document may represent.  If it is a string it is treated as XML, if a byte array it is used directly, if already a Document or Node (from org.w3c.dom) they are used as-is.
 
 There are four forms of most of the core functions, each with a different suffix borrowed from regular expression syntax: none, &#42; + and ?.  For example, @$x:tag@ has the following four implementations:
 
@@ -24,9 +24,9 @@ There are four forms of most of the core functions, each with a different suffix
 * @($x:tag* "//book")@: '0 or more', returns a sequence of the nodes found (which may be empty)
 * @($x:tag+ "//book")@: '1 or more'returns a sequence of the nodes found, throwing an exception if none are found
 
-If you are interested in the entire node found by the XPath expressions and not just in particular aspects the node (tag, attributes, text content), <code>$x</code> function returns a map containing the XML tag (as a symbol), dom Node, the text (as a string), and a map of the attributes where the keys have been converted into keywords and the values remain Strings.
+If you are interested in the entire node found by the XPath expressions and not just in particular aspects the node (tag, attributes, text content), `$x` function returns a map containing the XML tag (as a symbol), dom Node, the text (as a string), and a map of the attributes where the keys have been converted into keywords and the values remain Strings.
 
-<pre><code>
+```clojure
 (ns example
   (use [clj-xpath.core :only [$x $x:tag $x:text $x:attrs $x:attrs* $x:node]]))
 
@@ -71,63 +71,63 @@ If you are interested in the entire node found by the XPath expressions and not 
 (prn ($x:text "./author/name"
               ($x:node "//book[contains(@title,'XML')]" *some-xml*)))
 ;; "P.T. Xarnum"
-</code></pre>
+```
 
-h2. Parsing and XPath Compilation
+## Parsing and XPath Compilation
 
-The <code>$x</code> and related functions support Strings, and in many cases, other convenient types for these arguments.  In all cases where it expects an XML Document it can be given a String, a byte array or a Document.  Where an xpath expression is expected it will take either a String or a pre-compiled XPathExpression.  The act of parsing an XML document or compiling an xpath expression is an expensive activity.  With this flexibility, clj-xpath supports the convenience of in-line usage (with String data), as well as pre-parsed and pre-compiled instances for better performance.
+The `$x` and related functions support Strings, and in many cases, other convenient types for these arguments.  In all cases where it expects an XML Document it can be given a String, a byte array or a Document.  Where an xpath expression is expected it will take either a String or a pre-compiled XPathExpression.  The act of parsing an XML document or compiling an xpath expression is an expensive activity.  With this flexibility, clj-xpath supports the convenience of in-line usage (with String data), as well as pre-parsed and pre-compiled instances for better performance.
 
-<pre><code>
+```clojure
   (let [expr (xp:compile "/*")
         doc  (xml->doc "<authors><author><name>P.T. Xarnum</name></author></authors>")]
     ($x:tag expr doc))
-</code></pre>
+```
 
-h3. <code>(xml->doc doc) => Document</code>
+### `(xml->doc doc) => Document`
 
 This function takes xml that is of one of the following types and returns a Document:  String, byte array or org.w3c.dom.Document.  In cases of repeated usage of the document (eg: executing multiple xpath expressions against the same document) this will improve performance.
 
-h3. <code>(xp:compile xpexpr) => javax.xml.xpath.XPathExpression</code>
+### `(xp:compile xpexpr) => javax.xml.xpath.XPathExpression`
 
 Pre-compiles the xpath expression.  In cases of repeated execution of the xpath expression this will improve performance.
 
 
-h2. Validation
+## Validation
 
 Validation now off by default.  Validation is controlled by optional parameters passed to @xml-bytes->dom@, or by overriding the atom @*validation*@ to false:
 
-<pre><code>
+```clojure
   (ns your.namespace
     (:use clj-xpath.core))
 
   (binding [*validation* false]
     ($x:text "/this" "<this>foo</this>"))
-</code></pre>
+```
 
 
-h2. XPath and XML Namespaces
+## XPath and XML Namespaces
 
 To use the xpath library with an XML document that utilizes XML namespaces, you can make use of the `with-namespace-context` macro providing a map of aliases to the xmlns URL:
 
-<pre><code>
+```clojure
   (def xml (slurp "fixtures/namespace1.xml"))
   (with-namespace-context {"atom" "http://www.w3.org/2005/Atom"}
     ($x:text "//atom:title" xml-doc))
   ;; => BookingCollection
-</pre></code>
+```
 
 There is also a utility function that can pull the namespace declarations from the root node of your XML document:
 
-<pre><code>
+```clojure
   (def xml (slurp "fixtures/namespace1.xml"))
   (with-namespace-context (xmlnsmap-from-root-node xml-doc)
     ($x:text "//atom:title" xml-doc))
   ;; => BookingCollection
-</pre></code>
+```
 
 These two examples assume the following XML document:
 
-<pre><code>
+```xml
 <atom:feed xml:base="http://nplhost:8042/sap/opu/sdata/IWFND/RMTSAMPLEFLIGHT/"
                   xmlns:atom="http://www.w3.org/2005/Atom"
                   xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices"
@@ -147,45 +147,45 @@ These two examples assume the following XML document:
 </atom:entry>
 
 </atom:feed>
-</pre></code>
+```
 
-h2. Changes
+## Changes
 
-h5. Version 1.4.13-SNAPSHOT :
+##### Version 1.4.13-SNAPSHOT :
 
 * fixes #36 | Remove Apache Xalan dependency, no longer necessary for recent Java versions (from 7 onward)
 * drop support for clojure 1.6 and below
 * fix all flycheck warnings and errors
 * add Bakefile for local dev
 
-h5. Version 1.4.12 : Sun Dec 12 14:08:04 2021 -0800
+##### Version 1.4.12 : Sun Dec 12 14:08:04 2021 -0800
 
 * fix log4j vulnerability
 
-h5. Version 1.4.11 : Sun Jan  1 09:56:21 PST 2017
+##### Version 1.4.11 : Sun Jan  1 09:56:21 PST 2017
 
-* Merged "#34 implement abs-path for attribute elements":https://github.com/kyleburton/clj-xpath/pull/34
+* Merged [#34 implement abs-path for attribute elements](https://github.com/kyleburton/clj-xpath/pull/34)
 
-h5. Version 1.4.3  : Sat Sep 14 10:11:56 EDT 2013
+##### Version 1.4.3  : Sat Sep 14 10:11:56 EDT 2013
 
 * Compatibility with Clojure 1.2, 1.3, 1.4, 1.5 and 1.6-SNAPSHOT
 
-h5. Version 1.4.1 : Sat Sep  7 21:10:16 EDT 2013
+##### Version 1.4.1 : Sat Sep  7 21:10:16 EDT 2013
 
 * Support leiningen 2
 * create profiles for clojure 1.2 through 1.6
 * resolve reflection warnings: NB: two remain for clojure 1.3
 
-h5. Version 1.4.1 : Sat Feb 16 12:15:26 EST 2013
+##### Version 1.4.1 : Sat Feb 16 12:15:26 EST 2013
 
 Changed project group from org.clojars.kyleburton to com.github.kyleburton.
 
-h5. Version 1.4.0 : Tue Dec 18 15:10:19 EST 2012
+##### Version 1.4.0 : Tue Dec 18 15:10:19 EST 2012
 
 * @:children@ lazy seq of a Node's children added by mtnygard
 * idiomatic use of next
 
-h2. Hacking
+## Hacking
 
 ```console
 # to run an nrepl that you can connect to with `M-x cider-connect-clj`:
@@ -197,7 +197,7 @@ $ bake nrepl
 $ lein with-profile dev run -m clj-xpath.nrepl
 ```
 
-h2. Deploying
+## Deploying
 
 * https://github.com/clojars/clojars-web/wiki/Pushing
 * https://github.com/technomancy/leiningen/blob/master/doc/DEPLOY.md#authentication
@@ -230,7 +230,7 @@ $ lein deploy clojars
 $ lein release
 ```
 
-h2. Authors
+## Authors
 
 * Kyle Burton <kyle.burton@gmail.com>
 * Trotter Cashion <cashion@gmail.com>
