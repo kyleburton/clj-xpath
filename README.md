@@ -1,4 +1,4 @@
-![http://clojars.org/com.github.kyleburton/clj-xpath](http://clojars.org/com.github.kyleburton/clj-xpath/latest-version.svg)
+![https://clojars.org/com.github.kyleburton/clj-xpath](http://clojars.org/com.github.kyleburton/clj-xpath/latest-version.svg)
 
 # Overview
 
